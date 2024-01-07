@@ -558,6 +558,7 @@ class ConversableAgent(Agent):
             **context: any context information.
                 "message" needs to be provided if the `generate_init_message` method is not overridden.
         """
+        print("__in__")
         self._prepare_chat(recipient, clear_history)
         print(self.generate_init_message(**context))
         self.send(self.generate_init_message(**context), recipient, silent=silent)
