@@ -297,6 +297,7 @@ class ConversableAgent(Agent):
             bool: whether the message is appended to the ChatCompletion conversation.
         """
         message = self._message_to_dict(message)
+        print("message_in", message)
         # create oai message to be appended to the oai conversation that can be passed to oai directly.
         oai_message = {k: message[k] for k in ("content", "function_call", "name", "context") if k in message}
         if "content" not in oai_message:
@@ -310,6 +311,7 @@ class ConversableAgent(Agent):
             oai_message["role"] = "assistant"  # only messages with role 'assistant' can have a function call.
             oai_message["function_call"] = dict(oai_message["function_call"])
         self._oai_messages[conversation_id].append(oai_message)
+        print("self._oai_messages__in",self._oai_messages)
         return True
 
     def send(
@@ -557,6 +559,7 @@ class ConversableAgent(Agent):
                 "message" needs to be provided if the `generate_init_message` method is not overridden.
         """
         self._prepare_chat(recipient, clear_history)
+        print(self.generate_init_message(**context))
         self.send(self.generate_init_message(**context), recipient, silent=silent)
 
     async def a_initiate_chat(
