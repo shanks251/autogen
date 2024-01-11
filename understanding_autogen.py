@@ -33,5 +33,9 @@ pm = autogen.AssistantAgent(
 groupchat = autogen.GroupChat(agents=[user_proxy, coder, pm], messages=[], max_round=12)
 manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
+print('AssistantAgent_tools', coder.llm_config["tools"], pm.llm_config["tools"])
+print("groupchat_tools",groupchat.llm_config["tools"])
+print("manager_tools",manager.llm_config["tools"])
+
 user_proxy.initiate_chat(manager, message="Find a latest paper about gpt-4 on arxiv and find its potential applications in software.")
 # type exit to terminate the chat
