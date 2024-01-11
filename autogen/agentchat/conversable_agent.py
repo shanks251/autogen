@@ -359,6 +359,7 @@ class ConversableAgent(Agent):
         # When the agent composes and sends the message, the role of the message is "assistant"
         # unless it's "function".
         valid = self._append_oai_message(message, "assistant", recipient)
+        print(f"valid: {valid}")
         if valid:
             recipient.receive(message, self, request_reply, silent)
         else:
@@ -419,6 +420,9 @@ class ConversableAgent(Agent):
         # print the message received
         print(colored(sender.name, "yellow"), "(to", f"{self.name}):\n", flush=True)
         message = self._message_to_dict(message)
+        print("printing message")
+        for key in message.key():
+            print(f"{key: }{message[key]}")
 
         if message.get("role") == "function":
             func_print = f"***** Response from calling function \"{message['name']}\" *****"
@@ -459,6 +463,7 @@ class ConversableAgent(Agent):
                 "Received message can't be converted into a valid ChatCompletion message. Either content or function_call must be provided."
             )
         if not silent:
+            print("in_print_received_message")
             self._print_received_message(message, sender)
 
     def receive(
