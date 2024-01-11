@@ -297,7 +297,6 @@ class ConversableAgent(Agent):
             bool: whether the message is appended to the ChatCompletion conversation.
         """
         message = self._message_to_dict(message)
-        print("message_in: ", message)
         # create oai message to be appended to the oai conversation that can be passed to oai directly.
         oai_message = {k: message[k] for k in ("content", "function_call", "name", "context") if k in message}
         if "content" not in oai_message:
@@ -315,6 +314,7 @@ class ConversableAgent(Agent):
         for key in oai_message.keys():
             print(f'{key}:  ', oai_message[key])
         print("self._oai_messages: ",self._oai_messages)
+        print()
         return True
 
     def send(
@@ -423,6 +423,7 @@ class ConversableAgent(Agent):
         print("printing message")
         for key in message.keys():
             print(f"{key}: {message[key]}")
+        print("message ended")
 
         if message.get("role") == "function":
             func_print = f"***** Response from calling function \"{message['name']}\" *****"
@@ -499,6 +500,9 @@ class ConversableAgent(Agent):
         if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
             return
         reply = self.generate_reply(messages=self.chat_messages[sender], sender=sender)
+        print("reply: ", reply)
+        print("sender: ", sender)
+        print("silent: ", silent)
         if reply is not None:
             self.send(reply, sender, silent=silent)
 
@@ -566,9 +570,8 @@ class ConversableAgent(Agent):
             **context: any context information.
                 "message" needs to be provided if the `generate_init_message` method is not overridden.
         """
-        print("__in__")
+        print("__in_initiate_chat")
         self._prepare_chat(recipient, clear_history)
-        print("generate_init_message",self.generate_init_message(**context))
         self.send(self.generate_init_message(**context), recipient, silent=silent)
         print("self.Send_done")
 
@@ -968,7 +971,9 @@ class ConversableAgent(Agent):
 
         if messages is None:
             messages = self._oai_messages[sender]
-
+        
+        print("in_generate_reply")
+        print("self._reply_func_list: ", self._reply_func_list)
         for reply_func_tuple in self._reply_func_list:
             reply_func = reply_func_tuple["reply_func"]
             if exclude and reply_func in exclude:
