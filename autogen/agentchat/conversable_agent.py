@@ -422,7 +422,7 @@ class ConversableAgent(Agent):
         message = self._message_to_dict(message)
         print("printing message")
         for key in message.keys():
-            print(f"{key: }{message[key]}")
+            print(f"{key}: {message[key]}")
 
         if message.get("role") == "function":
             func_print = f"***** Response from calling function \"{message['name']}\" *****"
