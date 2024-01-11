@@ -310,6 +310,7 @@ class ConversableAgent(Agent):
             oai_message["role"] = "assistant"  # only messages with role 'assistant' can have a function call.
             oai_message["function_call"] = dict(oai_message["function_call"])
         self._oai_messages[conversation_id].append(oai_message)
+        print("in_send__append_oai_message")
         print("oai_messages_in",oai_message.keys())
         for key in oai_message.keys():
             print(f'{key}:  ', oai_message[key])
@@ -499,6 +500,7 @@ class ConversableAgent(Agent):
         if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
             return
         reply = self.generate_reply(messages=self.chat_messages[sender], sender=sender)
+        print("in_receive__")
         print("reply: ", reply)
         print("sender: ", sender)
         print("silent: ", silent)
@@ -973,6 +975,7 @@ class ConversableAgent(Agent):
         
         print("in_generate_reply")
         print("self._reply_func_list: ", self._reply_func_list)
+        print("messages:  ",messages)
         for reply_func_tuple in self._reply_func_list:
             reply_func = reply_func_tuple["reply_func"]
             if exclude and reply_func in exclude:
