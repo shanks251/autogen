@@ -238,10 +238,13 @@ class OpenAIWrapper:
             filter_func = extra_kwargs.get("filter_func")
             context = extra_kwargs.get("context")
             print("context: ", context)
+            print("filter_func: ",filter_func)
             print("params: ", params)
+            print("********len of message= ",len(params["messages"]))
 
             # Try to load the response from cache
             if cache_seed is not None:
+                print("in_create_if")
                 with diskcache.Cache(f"{self.cache_path_root}/{cache_seed}") as cache:
                     # Try to get the response from cache
                     key = get_key(params)
@@ -277,6 +280,7 @@ class OpenAIWrapper:
                 if i == last:
                     raise
             else:
+                print("in_create_else")
                 # add cost calculation before caching no matter filter is passed or not
                 response.cost = self.cost(response)
                 self._update_usage_summary(response, use_cache=False)
