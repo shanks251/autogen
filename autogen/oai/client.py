@@ -222,8 +222,9 @@ class OpenAIWrapper:
         last = len(self._clients) - 1
         print("in_OpenAIWapper_create")
         print("self: ",self)
+        print("self._clients: ", self._clients)
         for i, client in enumerate(self._clients):
-            print("self._clients: ", self._clients)
+            print("client: ", client)
             # merge the input config with the i-th config in the config list
             full_config = {**config, **self._config_list[i]}
             # separate the config into create_config and extra_kwargs
@@ -237,6 +238,7 @@ class OpenAIWrapper:
             filter_func = extra_kwargs.get("filter_func")
             context = extra_kwargs.get("context")
             print("context: ", context)
+            print("params: ", params)
 
             # Try to load the response from cache
             if cache_seed is not None:
@@ -244,6 +246,8 @@ class OpenAIWrapper:
                     # Try to get the response from cache
                     key = get_key(params)
                     response = cache.get(key, None)
+                    print("key: ", key)
+                    print("response: ", response)
 
                     if response is not None:
                         try:
@@ -263,6 +267,7 @@ class OpenAIWrapper:
                         continue  # filter is not passed; try the next config
             try:
                 response = self._completions_create(client, params)
+                print("response_completions_create: ", response)
             except APIError as err:
                 error_code = getattr(err, "code", None)
                 if error_code == "content_filter":
