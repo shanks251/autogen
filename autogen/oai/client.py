@@ -239,6 +239,7 @@ class OpenAIWrapper:
             context = extra_kwargs.get("context")
             print("context: ", context)
             print("filter_func: ",filter_func)
+            print("params_keys: ", params.keys())
             print("params: ", params)
             print("********len of params[messages]= ",len(params["messages"]))
 
