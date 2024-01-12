@@ -500,10 +500,10 @@ class ConversableAgent(Agent):
         if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
             return
         reply = self.generate_reply(messages=self.chat_messages[sender], sender=sender)
-        # print("in_receive__")
-        # print("reply: ", reply)
-        # print("sender: ", sender)
-        # print("silent: ", silent)
+        print("in_receive__")
+        print("reply: ", reply)
+        print("sender: ", sender)
+        print("silent: ", silent)
         if reply is not None:
             self.send(reply, sender, silent=silent)
 
