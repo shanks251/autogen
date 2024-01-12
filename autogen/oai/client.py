@@ -244,7 +244,7 @@ class OpenAIWrapper:
 
             # Try to load the response from cache
             if cache_seed is not None:
-                print("in_create_if")
+                # print("in_create_if")
                 with diskcache.Cache(f"{self.cache_path_root}/{cache_seed}") as cache:
                     # Try to get the response from cache
                     key = get_key(params)

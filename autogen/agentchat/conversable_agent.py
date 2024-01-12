@@ -420,10 +420,10 @@ class ConversableAgent(Agent):
         # print the message received
         print(colored(sender.name, "yellow"), "(to", f"{self.name}):\n", flush=True)
         message = self._message_to_dict(message)
-        print("printing message")
-        for key in message.keys():
-            print(f"{key}: {message[key]}")
-        print("message ended")
+        # print("printing message")
+        # for key in message.keys():
+        #     print(f"{key}: {message[key]}")
+        # print("message ended")
 
         if message.get("role") == "function":
             func_print = f"***** Response from calling function \"{message['name']}\" *****"
@@ -464,7 +464,7 @@ class ConversableAgent(Agent):
                 "Received message can't be converted into a valid ChatCompletion message. Either content or function_call must be provided."
             )
         if not silent:
-            print("in_print_received_message")
+            # print("in_print_received_message")
             self._print_received_message(message, sender)
 
     def receive(
@@ -500,10 +500,10 @@ class ConversableAgent(Agent):
         if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
             return
         reply = self.generate_reply(messages=self.chat_messages[sender], sender=sender)
-        print("in_receive__")
-        print("reply: ", reply)
-        print("sender: ", sender)
-        print("silent: ", silent)
+        # print("in_receive__")
+        # print("reply: ", reply)
+        # print("sender: ", sender)
+        # print("silent: ", silent)
         if reply is not None:
             self.send(reply, sender, silent=silent)
 
@@ -571,10 +571,10 @@ class ConversableAgent(Agent):
             **context: any context information.
                 "message" needs to be provided if the `generate_init_message` method is not overridden.
         """
-        print("__in_initiate_chat")
+        # print("__in_initiate_chat")
         self._prepare_chat(recipient, clear_history)
         self.send(self.generate_init_message(**context), recipient, silent=silent)
-        print("self.Send_done")
+        # print("self.Send_done")
 
     async def a_initiate_chat(
         self,
@@ -648,12 +648,12 @@ class ConversableAgent(Agent):
         if messages is None:
             messages = self._oai_messages[sender]
         
-        print("in__generate_oai_reply")
-        print("config: ", config)
-        print("messages__: ",messages)
-        print("self._oai_system_message: ", self._oai_system_message)
-        print(f"messages= {self._oai_system_message + messages}")
-        print("client: ", client)
+        # print("in__generate_oai_reply")
+        # print("config: ", config)
+        # print("messages__: ",messages)
+        # print("self._oai_system_message: ", self._oai_system_message)
+        # print(f"messages= {self._oai_system_message + messages}")
+        # print("client: ", client)
         # TODO: #1143 handle token limit exceeded error
         response = client.create(
             context=messages[-1].pop("context", None), messages=self._oai_system_message + messages
@@ -979,7 +979,7 @@ class ConversableAgent(Agent):
         if messages is None:
             messages = self._oai_messages[sender]
         
-        print("in_generate_reply")
+        # print("in_generate_reply")
         # print("self: ", self)
         # print("self._reply_func_list: ", self._reply_func_list)
         # print("messages:  ",messages)
