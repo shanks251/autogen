@@ -290,6 +290,7 @@ class OpenAIWrapper:
                 continue  # filter is not passed; try the next config
 
     def _completions_create(self, client, params):
+        print("in_completions_create")
         completions = client.chat.completions if "messages" in params else client.completions
         # If streaming is enabled, has messages, and does not have functions, then
         # iterate over the chunks of the response
