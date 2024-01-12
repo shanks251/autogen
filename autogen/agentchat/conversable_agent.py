@@ -363,6 +363,7 @@ class ConversableAgent(Agent):
         print("recipient: ", recipient)
         valid = self._append_oai_message(message, "assistant", recipient)
         if valid:
+            print("in_valid: ")
             recipient.receive(message, self, request_reply, silent)
         else:
             raise ValueError(
@@ -498,14 +499,14 @@ class ConversableAgent(Agent):
         Raises:
             ValueError: if the message can't be converted into a valid ChatCompletion message.
         """
-        self._process_received_message(message, sender, silent)
-        if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
-            return
-        reply = self.generate_reply(messages=self.chat_messages[sender], sender=sender)
         print("in_receive__")
         print("reply: ", reply)
         print("sender: ", sender)
         print("silent: ", silent)
+        self._process_received_message(message, sender, silent)
+        if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
+            return
+        reply = self.generate_reply(messages=self.chat_messages[sender], sender=sender)
         if reply is not None:
             self.send(reply, sender, silent=silent)
 
