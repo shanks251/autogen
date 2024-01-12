@@ -502,6 +502,8 @@ class ConversableAgent(Agent):
         print("in_receive__")
         print("sender: ", sender)
         print("silent: ", silent)
+        print("request_reply: ", request_reply)
+        print(" self.reply_at_receive[sender]: ",  self.reply_at_receive[sender])
         self._process_received_message(message, sender, silent)
         if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
             return
