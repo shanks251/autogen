@@ -980,12 +980,12 @@ class ConversableAgent(Agent):
             messages = self._oai_messages[sender]
         
         print("in_generate_reply")
-        print("self: ", self)
-        print("self._reply_func_list: ", self._reply_func_list)
-        print("messages:  ",messages)
+        # print("self: ", self)
+        # print("self._reply_func_list: ", self._reply_func_list)
+        # print("messages:  ",messages)
         for reply_func_tuple in self._reply_func_list:
             reply_func = reply_func_tuple["reply_func"]
-            print("reply_func: ", reply_func)
+            # print("reply_func: ", reply_func)
             if exclude and reply_func in exclude:
                 continue
             if asyncio.coroutines.iscoroutinefunction(reply_func):

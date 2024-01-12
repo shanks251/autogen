@@ -240,7 +240,7 @@ class OpenAIWrapper:
             print("context: ", context)
             print("filter_func: ",filter_func)
             print("params: ", params)
-            print("********len of message= ",len(params["messages"]))
+            print("********len of params[messages]= ",len(params["messages"]))
 
             # Try to load the response from cache
             if cache_seed is not None:
