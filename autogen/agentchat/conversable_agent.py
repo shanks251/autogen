@@ -974,6 +974,7 @@ class ConversableAgent(Agent):
             messages = self._oai_messages[sender]
         
         print("in_generate_reply")
+        print("self: ", self)
         print("self._reply_func_list: ", self._reply_func_list)
         print("messages:  ",messages)
         for reply_func_tuple in self._reply_func_list:
