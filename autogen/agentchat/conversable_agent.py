@@ -978,6 +978,7 @@ class ConversableAgent(Agent):
         print("messages:  ",messages)
         for reply_func_tuple in self._reply_func_list:
             reply_func = reply_func_tuple["reply_func"]
+            print("reply_func: ", reply_func)
             if exclude and reply_func in exclude:
                 continue
             if asyncio.coroutines.iscoroutinefunction(reply_func):
