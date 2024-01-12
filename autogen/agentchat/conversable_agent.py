@@ -651,7 +651,7 @@ class ConversableAgent(Agent):
         print("in__generate_oai_reply")
         print("config: ", config)
         print("messages__: ",messages)
-        if messages['context']:
+        if messages.get("context", None):
             print("context: ", messages['context'])
         print("self._oai_system_message: ", self._oai_system_message)
         print(f"messages= {self._oai_system_message + messages}")
