@@ -220,9 +220,9 @@ class OpenAIWrapper:
         if ERROR:
             raise ERROR
         last = len(self._clients) - 1
-        print("in_OpenAIWapper_create")
-        print("self: ",self)
-        print("self._clients: ", self._clients)
+        # print("in_OpenAIWapper_create")
+        # print("self: ",self)
+        # print("self._clients: ", self._clients)
         for i, client in enumerate(self._clients):
             print("client: ", client)
             # merge the input config with the i-th config in the config list
