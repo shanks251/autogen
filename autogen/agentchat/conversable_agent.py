@@ -500,13 +500,13 @@ class ConversableAgent(Agent):
             ValueError: if the message can't be converted into a valid ChatCompletion message.
         """
         print("in_receive__")
-        print("reply: ", reply)
         print("sender: ", sender)
         print("silent: ", silent)
         self._process_received_message(message, sender, silent)
         if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
             return
         reply = self.generate_reply(messages=self.chat_messages[sender], sender=sender)
+        print("reply: ", reply)
         if reply is not None:
             self.send(reply, sender, silent=silent)
 
