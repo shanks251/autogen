@@ -647,7 +647,13 @@ class ConversableAgent(Agent):
             return False, None
         if messages is None:
             messages = self._oai_messages[sender]
-
+        
+        print("in__generate_oai_reply")
+        print("config: ", config)
+        print("messages__: ",messages)
+        print("self._oai_system_message: ", self._oai_system_message)
+        print(f"messages= {self._oai_system_message + messages}")
+        print("client: ", client)
         # TODO: #1143 handle token limit exceeded error
         response = client.create(
             context=messages[-1].pop("context", None), messages=self._oai_system_message + messages
