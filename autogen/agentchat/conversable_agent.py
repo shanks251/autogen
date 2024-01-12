@@ -312,8 +312,8 @@ class ConversableAgent(Agent):
         self._oai_messages[conversation_id].append(oai_message)
         # print("in_send__append_oai_message")
         # print("oai_messages_in",oai_message.keys())
-        for key in oai_message.keys():
-            print(f'{key}:  ', oai_message[key])
+        # for key in oai_message.keys():
+        #     print(f'{key}:  ', oai_message[key])
         # print("self._oai_messages: ",self._oai_messages)
         # print()
         return True
