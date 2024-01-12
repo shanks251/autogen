@@ -220,7 +220,10 @@ class OpenAIWrapper:
         if ERROR:
             raise ERROR
         last = len(self._clients) - 1
+        print("in_OpenAIWapper_create")
+        print("self: ",self)
         for i, client in enumerate(self._clients):
+            print("self._clients: ", self._clients)
             # merge the input config with the i-th config in the config list
             full_config = {**config, **self._config_list[i]}
             # separate the config into create_config and extra_kwargs
@@ -233,6 +236,7 @@ class OpenAIWrapper:
             cache_seed = extra_kwargs.get("cache_seed", 41)
             filter_func = extra_kwargs.get("filter_func")
             context = extra_kwargs.get("context")
+            print("context: ", context)
 
             # Try to load the response from cache
             if cache_seed is not None:
