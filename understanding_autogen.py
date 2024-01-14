@@ -47,7 +47,7 @@ manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 # print("groupchat_tools",groupchat.llm_config["tools"])
 # print("manager_tools",manager.llm_config["tools"])
 
-user_proxy.initiate_chat(manager, message="Find a latest paper about gpt-4 on arxiv and find its potential applications in software.")
+user_proxy.initiate_chat(manager, message="Find reasons for 2008 recession and suggest solution adopted to overcome it.")
 # type exit to terminate the chat
 
 
