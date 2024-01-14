@@ -93,7 +93,7 @@ def currency_calculator(
 
 
 print("functions",chatbot.llm_config['functions'])
-print(chatbot.llm_config['tools'])
+# print(chatbot.llm_config['tools'])
 
 # start the conversation
 user_proxy.initiate_chat(
