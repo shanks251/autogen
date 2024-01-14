@@ -994,6 +994,7 @@ class ConversableAgent(Agent):
             if exclude and reply_func in exclude:
                 continue
             if asyncio.coroutines.iscoroutinefunction(reply_func):
+                print("in_gen_reply_iscoroutinefunction")
                 continue
             if self._match_trigger(reply_func_tuple["trigger"], sender):
                 final, reply = reply_func(self, messages=messages, sender=sender, config=reply_func_tuple["config"])
