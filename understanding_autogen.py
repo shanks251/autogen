@@ -92,7 +92,7 @@ def currency_calculator(
     return f"{quote_amount} {quote_currency}"
 
 
-# print("tools",chatbot.llm_config)
+print("tools",chatbot.llm_config)
 
 # start the conversation
 user_proxy.initiate_chat(
