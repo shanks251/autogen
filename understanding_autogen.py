@@ -92,7 +92,7 @@ def currency_calculator(
     return f"{quote_amount} {quote_currency}"
 
 
-print("functions",chatbot.llm_config['functions'])
+# print("functions",chatbot.llm_config['functions'])
 # print(chatbot.llm_config['tools'])
 
 # start the conversation
