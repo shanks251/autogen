@@ -81,8 +81,8 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
         raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
 
-# @user_proxy.register_for_execution()
-# @chatbot.register_for_llm(description="Currency exchange calculator.")
+@user_proxy.register_for_execution()
+@chatbot.register_for_llm(description="Currency exchange calculator.")
 def currency_calculator(
     base_amount: Annotated[float, "Amount of currency in base_currency"],
     base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
