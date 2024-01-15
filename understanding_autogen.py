@@ -54,7 +54,7 @@ llm_config = {"config_list": config_list_gpt35,
 
 chatbot = autogen.AssistantAgent(
     name="chatbot",
-    system_message="For currency exchange tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
+    # system_message="For currency exchange tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
 
@@ -63,7 +63,7 @@ user_proxy = autogen.UserProxyAgent(
     name="user_proxy",
     is_termination_msg=lambda x: x.get("content", "") and x.get("content", "").rstrip().endswith("TERMINATE"),
     human_input_mode="NEVER",
-    # max_consecutive_auto_reply=10,
+    max_consecutive_auto_reply=10,
 )
 
 
@@ -81,8 +81,8 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
         raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
 
-@user_proxy.register_for_execution()
-@chatbot.register_for_llm(description="Currency exchange calculator.")
+# @user_proxy.register_for_execution()
+# @chatbot.register_for_llm(description="Currency exchange calculator.")
 def currency_calculator(
     base_amount: Annotated[float, "Amount of currency in base_currency"],
     base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
@@ -98,5 +98,5 @@ print("functions",chatbot.llm_config['functions'])
 # start the conversation
 user_proxy.initiate_chat(
     chatbot,
-    message="How does machine learning model do learning? Elaborate on the process.",
+    message="Find papers about gpt based models on arxiv and find its potential applications in software.",
 )
