@@ -13,7 +13,7 @@ agent_list, agent_configs = builder.build(building_task, default_llm_config)
 
 
 def start_task(execution_task: str, agent_list: list, llm_config: dict):
-    config_list = autogen.config_list_from_json(config_path, filter_dict={"model": ["gpt-4-1106-preview"]})
+    config_list = autogen.config_list_from_json(config_path, filter_dict={"model": ["gpt-3.5-turbo","gpt-3.5-turbo-16k","gpt-3.5-turbo-0301","chatgpt-35-turbo-0301","gpt-35-turbo-v0301",]})
     
     group_chat = autogen.GroupChat(agents=agent_list, messages=[], max_round=12)
     manager = autogen.GroupChatManager(
