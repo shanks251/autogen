@@ -9,10 +9,10 @@ config_list_gpt35 = autogen.config_list_from_json(
     filter_dict={
         "model": {
             "gpt-3.5-turbo",
-            "gpt-3.5-turbo-16k",
-            "gpt-3.5-turbo-0301",
-            "chatgpt-35-turbo-0301",
-            "gpt-35-turbo-v0301",
+            # "gpt-3.5-turbo-16k",
+            # "gpt-3.5-turbo-0301",
+            # "chatgpt-35-turbo-0301",
+            # "gpt-35-turbo-v0301",
         },
     },
 )
