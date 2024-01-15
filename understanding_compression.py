@@ -15,34 +15,34 @@ config_list = autogen.config_list_from_json(
     },
 )
 
-###example 1
+# ###example 1
 
-# 1. replace AssistantAgent with CompressibleAgent
-assistant = CompressibleAgent(
-    name="assistant", 
-    system_message="You are a helpful assistant.",
-    llm_config={
-        "timeout": 600,
-        "cache_seed": 42,
-        "config_list": config_list,
-    },
-    compress_config={
-        "mode": "COMPRESS",
-        "trigger_count": 600, # set this to a large number for less frequent compression
-        "verbose": True, # to allow printing of compression information: contex before and after compression
-        "leave_last_n": 2,
-    }
-)
+# # 1. replace AssistantAgent with CompressibleAgent
+# assistant = CompressibleAgent(
+#     name="assistant", 
+#     system_message="You are a helpful assistant.",
+#     llm_config={
+#         "timeout": 600,
+#         "cache_seed": 42,
+#         "config_list": config_list,
+#     },
+#     compress_config={
+#         "mode": "COMPRESS",
+#         "trigger_count": 600, # set this to a large number for less frequent compression
+#         "verbose": True, # to allow printing of compression information: contex before and after compression
+#         "leave_last_n": 2,
+#     }
+# )
 
-# 2. create the MathUserProxyAgent instance named "mathproxyagent"
-mathproxyagent = MathUserProxyAgent(
-    name="mathproxyagent", 
-    human_input_mode="NEVER",
-    code_execution_config={"use_docker": False},
-    max_consecutive_auto_reply=5,
-)
-math_problem = "Find all $x$ that satisfy the inequality $(2x+10)(x+3)<(3x+9)(x+8)$. Express your answer in interval notation."
-mathproxyagent.initiate_chat(assistant, problem=math_problem)
+# # 2. create the MathUserProxyAgent instance named "mathproxyagent"
+# mathproxyagent = MathUserProxyAgent(
+#     name="mathproxyagent", 
+#     human_input_mode="NEVER",
+#     code_execution_config={"use_docker": False},
+#     max_consecutive_auto_reply=5,
+# )
+# math_problem = "Find all $x$ that satisfy the inequality $(2x+10)(x+3)<(3x+9)(x+8)$. Express your answer in interval notation."
+# mathproxyagent.initiate_chat(assistant, problem=math_problem)
 
 
 
