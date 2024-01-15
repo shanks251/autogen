@@ -329,6 +329,10 @@ class GroupChatManager(ConversableAgent):
         if messages is None:
             messages = self._oai_messages[sender]
         message = messages[-1]
+        print("in_Group_chat_manager_run_chat")
+        print("message: ", message)
+        print("sender: ", sender)
+        print("groupchat.agents: ", groupchat.agents)
         speaker = sender
         groupchat = config
         for i in range(groupchat.max_round):
