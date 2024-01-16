@@ -6,7 +6,7 @@ default_llm_config = {
     'temperature': 0
 }
 
-builder = AgentBuilder(config_path=config_path, builder_model='gpt-3.5-turbo', agent_model='gpt-3.5-turbo')
+builder = AgentBuilder(config_file_or_env=config_path, builder_model='gpt-3.5-turbo', agent_model='gpt-3.5-turbo')
 building_task = "Find a paper on arxiv by programming, and analyze its application in some domain. For example, find a recent paper about gpt-4 on arxiv and find its potential applications in software."
 
 agent_list, agent_configs = builder.build(building_task, default_llm_config)
