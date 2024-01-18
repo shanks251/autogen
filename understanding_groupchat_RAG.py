@@ -48,7 +48,7 @@ building_task = "Generate some agents that can find read documents related to fi
 agent_list, agent_configs = builder.build(building_task, llm_config)
 
 for agent in agent_list:
-    print("agent: ", agent)
+    print("agent__: ", agent)
 
 boss = autogen.UserProxyAgent(
     name="Boss",
