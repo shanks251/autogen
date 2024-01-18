@@ -54,7 +54,7 @@ boss = autogen.UserProxyAgent(
     name="Boss",
     is_termination_msg=termination_msg,
     human_input_mode="NEVER",
-    system_message="The boss who ask questions and give tasks.",
+    # system_message="The boss who ask questions and give tasks.",
     code_execution_config=True,  # we do want to execute code in this case.
     default_auto_reply="Reply `TERMINATE` if the task is done.",
 )
@@ -78,7 +78,7 @@ boss_aid = RetrieveUserProxyAgent(
         "collection_name": "groupchat",
         "get_or_create": True,
     },
-    code_execution_config=True,  # we don't want to execute code in this case.
+    code_execution_config=False,  # we don't want to execute code in this case.
 )
 
 solver = autogen.AssistantAgent(
@@ -86,7 +86,7 @@ solver = autogen.AssistantAgent(
     system_message="For currency exchange tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
-# agent_list.insert(0, boss)
+agent_list.insert(0, boss)
 agent_list.extend([boss_aid, solver]) 
     
 CurrencySymbol = Literal["USD", "EUR"]
