@@ -103,7 +103,7 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
         raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
 
-@boss_aid.register_for_execution()
+@boss.register_for_execution()
 @solver.register_for_llm(description="Currency exchange calculator.")
 def currency_calculator(
     base_amount: Annotated[float, "Amount of currency in base_currency"],
