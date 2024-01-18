@@ -112,7 +112,7 @@ def currency_calculator(
 
 
 # PROBLEM_general = "What is GDP of USA and Germany? Give output in there owm country currency. Also output who has greater GDP amomg them."
-PROBLEM = "What are the GDP figures for the USA and Germany, expressed in their respective national currencies? Additionally, determine which country has the higher GDP."
+PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies"
 
 
 def _reset_agents():
