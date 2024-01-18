@@ -40,12 +40,6 @@ def termination_msg(x):
 
 # PROBLEM_general = "What is GDP of USA and Germany? Give output in there owm country currency. Also output who has greater GDP amomg them."
 PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies"
-
-def start_task(execution_task: str, agent_list: list):
-    group_chat = autogen.GroupChat(agents=agent_list, messages=[], max_round=12)
-    manager = autogen.GroupChatManager(groupchat=group_chat, llm_config={"config_list": config_list, **llm_config})
-    agent_list[0].initiate_chat(manager, message=execution_task)
-    
     
 builder = AgentBuilder(
     config_file_or_env=config_file_or_env, builder_model="gpt-3.5-turbo", agent_model="gpt-3.5-turbo"
@@ -82,7 +76,8 @@ solver = autogen.AssistantAgent(
     system_message="For currency exchange tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
-    
+
+agent_list.extend([boss_aid, solver]) 
     
 CurrencySymbol = Literal["USD", "EUR"]
 
@@ -108,16 +103,24 @@ def currency_calculator(
     quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
     return f"{quote_amount} {quote_currency}"
 
-print("boss: ", boss)
-print("boss_aid: ", boss_aid)
-print("solver: ", solver)
+
+
 for agent in agent_list:
     print("agent: ", agent)
 
-# start_task(
-#     execution_task=PROBLEM,
-#     agent_list=agent_list,
-# )
+
+def start_task(execution_task: str, agent_list: list):
+    group_chat = autogen.GroupChat(agents=agent_list, messages=[], max_round=12, speaker_selection_method="auto")
+    manager = autogen.GroupChatManager(groupchat=group_chat, llm_config={"config_list": config_list, **llm_config})
+    agent_list[0].initiate_chat(manager, message=execution_task)
+    
+start_task(
+    execution_task=PROBLEM,
+    agent_list=agent_list,
+)
+
+
+
 
 def _reset_agents():
     boss.reset()
