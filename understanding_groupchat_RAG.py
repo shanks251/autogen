@@ -3,6 +3,7 @@ import chromadb
 import autogen
 from autogen import AssistantAgent
 from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
+from autogen.agentchat.contrib.agent_builder import AgentBuilder
 from typing import Literal
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated
@@ -70,20 +71,6 @@ solver = autogen.AssistantAgent(
     system_message="For currency exchange tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
-
-coder = AssistantAgent(
-    name="Senior_Python_Engineer",
-    is_termination_msg=termination_msg,
-    system_message="You are a senior python engineer. Reply `TERMINATE` in the end when everything is done.",
-    llm_config=llm_config,
-)
-
-reviewer = autogen.AssistantAgent(
-    name="Code_Reviewer",
-    is_termination_msg=termination_msg,
-    system_message="You are a code reviewer. Reply `TERMINATE` in the end when everything is done.",
-    llm_config=llm_config,
-)
     
     
 CurrencySymbol = Literal["USD", "EUR"]
@@ -115,18 +102,39 @@ def currency_calculator(
 PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies"
 
 
+def start_task(execution_task: str, agent_list: list):
+    group_chat = autogen.GroupChat(agents=agent_list, messages=[], max_round=12)
+    manager = autogen.GroupChatManager(groupchat=group_chat, llm_config={"config_list": config_list, **llm_config})
+    agent_list[0].initiate_chat(manager, message=execution_task)
+    
+    
+builder = AgentBuilder(
+    config_file_or_env=config_list, builder_model="gpt-4-1106-preview", agent_model="gpt-4-1106-preview"
+)
+building_task = "Generate some agents that can find read documents related to finance and solve task related to finance/economic domain. For example reading financial documents and comapring GDP for countries."
+agent_list, agent_configs = builder.build(building_task, llm_config)
+
+print("boss: ", boss)
+print("boss_aid: ", boss_aid)
+print("solver: ", solver)
+for agent in agent_list:
+    print("agent: ", agent)
+
+# start_task(
+#     execution_task=PROBLEM,
+#     agent_list=agent_list,
+# )
+
 def _reset_agents():
     boss.reset()
     boss_aid.reset()
-    coder.reset()
-    reviewer.reset()
     solver.reset()
 
 
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, boss_aid, coder, reviewer, solver], messages=[], max_round=12, speaker_selection_method="auto"
+        agents=[boss, boss_aid, solver], messages=[], max_round=12, speaker_selection_method="auto"
     )
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
@@ -179,11 +187,11 @@ def call_rag_chat():
         "cache_seed": 42,
     }
 
-    for agent in [coder, reviewer, solver]:
+    for agent in [solver]:
         # update llm_config for assistant agents.
         agent.llm_config.update(llm_config)
 
-    for agent in [boss, coder, reviewer, solver]:
+    for agent in [solver]:
         # register functions for all agents.
         agent.register_function(
             function_map={
@@ -192,7 +200,7 @@ def call_rag_chat():
         )
 
     groupchat = autogen.GroupChat(
-        agents=[boss, coder, reviewer, solver],
+        agents=[boss, solver],
         messages=[],
         max_round=12,
         speaker_selection_method="random",
@@ -209,5 +217,5 @@ def call_rag_chat():
         message=PROBLEM,
     )
     
-rag_chat()
+# rag_chat()
 # call_rag_chat()
