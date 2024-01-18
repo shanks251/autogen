@@ -122,7 +122,9 @@ for agent in agent_list:
 def start_task(execution_task: str, agent_list: list):
     group_chat = autogen.GroupChat(agents=agent_list, messages=[], max_round=12, speaker_selection_method="auto")
     manager = autogen.GroupChatManager(groupchat=group_chat, llm_config={"config_list": config_list, **llm_config})
-    boss_aid.initiate_chat(manager, message=execution_task)
+    agent_list[0].initiate_chat(manager, message=execution_task)
+    boss_aid(problem=execution_task,
+        n_results=3,)
     
 start_task(
     execution_task=PROBLEM,
