@@ -209,5 +209,5 @@ def call_rag_chat():
         message=PROBLEM,
     )
     
-# rag_chat()
-call_rag_chat()
+rag_chat()
+# call_rag_chat()
