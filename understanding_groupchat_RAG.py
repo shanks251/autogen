@@ -55,7 +55,8 @@ boss = autogen.UserProxyAgent(
     is_termination_msg=termination_msg,
     human_input_mode="NEVER",
     # system_message="The boss who ask questions and give tasks.",
-    code_execution_config=True,  # we do want to execute code in this case.
+    # code_execution_config=None,  # we do want to execute code in this case.
+    max_consecutive_auto_reply=10,
     default_auto_reply="Reply `TERMINATE` if the task is done.",
 )
 
