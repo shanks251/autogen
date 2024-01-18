@@ -78,7 +78,7 @@ boss_aid = RetrieveUserProxyAgent(
         "collection_name": "groupchat",
         "get_or_create": True,
     },
-    code_execution_config=False,  # we don't want to execute code in this case.
+    code_execution_config=True,  # we don't want to execute code in this case.
 )
 
 solver = autogen.AssistantAgent(
@@ -86,7 +86,7 @@ solver = autogen.AssistantAgent(
     system_message="For currency exchange tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
-agent_list.insert(0, boss)
+# agent_list.insert(0, boss)
 agent_list.extend([boss_aid, solver]) 
     
 CurrencySymbol = Literal["USD", "EUR"]
@@ -103,7 +103,7 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
         raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
 
-@boss.register_for_execution()
+@boss_aid.register_for_execution()
 @solver.register_for_llm(description="Currency exchange calculator.")
 def currency_calculator(
     base_amount: Annotated[float, "Amount of currency in base_currency"],
@@ -122,7 +122,7 @@ for agent in agent_list:
 def start_task(execution_task: str, agent_list: list):
     group_chat = autogen.GroupChat(agents=agent_list, messages=[], max_round=12, speaker_selection_method="auto")
     manager = autogen.GroupChatManager(groupchat=group_chat, llm_config={"config_list": config_list, **llm_config})
-    agent_list[0].initiate_chat(manager, message=execution_task)
+    boss_aid.initiate_chat(manager, message=execution_task)
     
 start_task(
     execution_task=PROBLEM,
