@@ -8,8 +8,10 @@ from typing import Literal
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated
 
+
+config_file_or_env = "/content/drive/MyDrive/OAI_CONFIG_LIST"
 config_list = autogen.config_list_from_json(
-    "/content/drive/MyDrive/OAI_CONFIG_LIST",
+    config_file_or_env,
     filter_dict={
         "model": {
             "gpt-3.5-turbo",
@@ -109,7 +111,7 @@ def start_task(execution_task: str, agent_list: list):
     
     
 builder = AgentBuilder(
-    config_file_or_env=config_list, builder_model="gpt-4-1106-preview", agent_model="gpt-4-1106-preview"
+    config_file_or_env=config_file_or_env, builder_model="gpt-3.5-turbo", agent_model="gpt-3.5-turbo"
 )
 building_task = "Generate some agents that can find read documents related to finance and solve task related to finance/economic domain. For example reading financial documents and comapring GDP for countries."
 agent_list, agent_configs = builder.build(building_task, llm_config)
