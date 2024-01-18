@@ -121,10 +121,10 @@ def start_task(execution_task: str, agent_list: list):
     manager = autogen.GroupChatManager(groupchat=group_chat, llm_config={"config_list": config_list, **llm_config})
     agent_list[0].initiate_chat(manager, message=execution_task)
     
-# start_task(
-#     execution_task=PROBLEM,
-#     agent_list=agent_list,
-# )
+start_task(
+    execution_task=PROBLEM,
+    agent_list=agent_list,
+)
 
 
 
