@@ -47,7 +47,14 @@ builder = AgentBuilder(
 building_task = "Generate some agents that can find read documents related to finance and solve task related to finance/economic domain. For example reading financial documents and comapring GDP for countries."
 agent_list, agent_configs = builder.build(building_task, llm_config)
 
-boss = agent_list[0]
+boss = autogen.UserProxyAgent(
+    name="Boss",
+    is_termination_msg=termination_msg,
+    human_input_mode="NEVER",
+    system_message="The boss who ask questions and give tasks.",
+    code_execution_config=True,  # we do want to execute code in this case.
+    default_auto_reply="Reply `TERMINATE` if the task is done.",
+)
 
 boss_aid = RetrieveUserProxyAgent(
     name="Boss_Assistant",
@@ -76,7 +83,7 @@ solver = autogen.AssistantAgent(
     system_message="For currency exchange tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
-
+agent_list.insert(0, boss)
 agent_list.extend([boss_aid, solver]) 
     
 CurrencySymbol = Literal["USD", "EUR"]
