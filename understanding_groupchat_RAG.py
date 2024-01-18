@@ -53,8 +53,9 @@ boss_aid = RetrieveUserProxyAgent(
     retrieve_config={
         "task": "code",
         "docs_path": [
-            "https://www.forbesindia.com/article/explainers/top-10-largest-economies-in-the-world/86159/1",
-            "https://en.wikipedia.org/wiki/List_of_highest-grossing_Indian_films",
+            "/content/drive/MyDrive/sample_doc/List of highest-grossing Indian films - Wikipedia.pdf",
+            "/content/drive/MyDrive/sample_doc/SaaS_Product_AutoGen Agent_medium.pdf",
+            "/content/drive/MyDrive/sample_doc/World_GDP_Rankings 2024_Top 10_Countries_Ranked_GDP_Forbes_India.pdf"
         ],
         "chunk_token_size": 1000,
         "model": config_list[0]["model"],
