@@ -68,9 +68,9 @@ boss_aid = RetrieveUserProxyAgent(
     retrieve_config={
         "task": "code",
         "docs_path": [
-            # "/content/drive/MyDrive/sample_doc/highest_grossing_Indian_films.pdf",
-            "/content/drive/MyDrive/sample_doc/SaaS_Product_AutoGen Agent_medium.pdf",
-            "/content/drive/MyDrive/sample_doc/World_GDP_Rankings 2024_Top 10_Countries_Ranked_GDP_Forbes_India.pdf"
+            "/content/drive/MyDrive/sample_doc/sample_1.pdf",
+            "/content/drive/MyDrive/sample_doc/sample_2.pdf",
+            "/content/drive/MyDrive/sample_doc/sample_3.pdf"
         ],
         "chunk_token_size": 1000,
         "model": config_list[0]["model"],
