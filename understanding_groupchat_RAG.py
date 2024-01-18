@@ -47,6 +47,9 @@ builder = AgentBuilder(
 building_task = "Generate some agents that can find read documents related to finance and solve task related to finance/economic domain. For example reading financial documents and comapring GDP for countries."
 agent_list, agent_configs = builder.build(building_task, llm_config)
 
+for agent in agent_list:
+    print("agent: ", agent)
+
 boss = autogen.UserProxyAgent(
     name="Boss",
     is_termination_msg=termination_msg,
