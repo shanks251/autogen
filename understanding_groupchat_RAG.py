@@ -40,7 +40,7 @@ boss = autogen.UserProxyAgent(
     is_termination_msg=termination_msg,
     human_input_mode="NEVER",
     system_message="The boss who ask questions and give tasks.",
-    code_execution_config=True,  # we don't want to execute code in this case.
+    code_execution_config=True,
     default_auto_reply="Reply `TERMINATE` if the task is done.",
 )
 
@@ -125,7 +125,7 @@ def _reset_agents():
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss_aid, coder, reviewer, solver], messages=[], max_round=12, speaker_selection_method="auto"
+        agents=[boss, boss_aid, coder, reviewer, solver], messages=[], max_round=12, speaker_selection_method="auto"
     )
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
