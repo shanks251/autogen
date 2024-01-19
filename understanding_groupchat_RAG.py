@@ -94,6 +94,13 @@ solver = autogen.AssistantAgent(
     system_message="For currency exchange tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
+
+currency_aid = autogen.AssistantAgent(
+    name="currency_aid = autogen.AssistantAgent",
+    system_message="Suggest correct currency of given countries. Reply TERMINATE when the task is done.",
+    llm_config=llm_config,
+)
+
 # agent_list.insert(0, boss)
 agent_list.extend([boss_aid, solver]) 
     
@@ -157,7 +164,7 @@ def _reset_agents():
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, boss_aid, solver], messages=[], max_round=12, speaker_selection_method="auto"
+        agents=[boss, boss_aid, solver, currency_aid], messages=[], max_round=12, speaker_selection_method="auto"
     )
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
