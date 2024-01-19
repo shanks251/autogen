@@ -47,11 +47,11 @@ builder = AgentBuilder(
 building_task = "Generate some agents that can find read documents related to finance and solve task related to finance/economic domain. For example reading financial documents and comapring GDP for countries."
 agent_list, agent_configs = builder.build(building_task, llm_config, coding=True, use_oai_assistant=True)
 
-print("*******agent_configs*******")
-# print(agent_configs['agent_configs'][0]['system_message'])
-saved_path = builder.save()
-print("agent_list", agent_list)
-print("*******agent_configs_done*******")
+# print("*******agent_configs*******")
+# # print(agent_configs['agent_configs'][0]['system_message'])
+# saved_path = builder.save()
+# print("agent_list", agent_list)
+# print("*******agent_configs_done*******")
 # for agent in agent_list:
 #     print("agent__: ", agent)
 
