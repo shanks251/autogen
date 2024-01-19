@@ -47,8 +47,12 @@ builder = AgentBuilder(
 building_task = "Generate some agents that can find read documents related to finance and solve task related to finance/economic domain. For example reading financial documents and comapring GDP for countries."
 agent_list, agent_configs = builder.build(building_task, llm_config, coding=True)
 
-for agent in agent_list:
-    print("agent__: ", agent)
+print("*******agent_configs*******")
+for agent_config in agent_configs:
+    print(agent_config)
+print("*******agent_configs_done*******")
+# for agent in agent_list:
+#     print("agent__: ", agent)
 
 boss = autogen.UserProxyAgent(
     name="Boss",
@@ -117,11 +121,11 @@ def currency_calculator(
     return f"{quote_amount} {quote_currency}"
 
 
-print("********printing agent names********")
-for agent in agent_list:
-    print(f"{agent.name}: {agent}")
+# print("********printing agent names********")
+# for agent in agent_list:
+#     print(f"{agent.name}: {agent}")
     
-print("********printing agent names done********")
+# print("********printing agent names done********")
 
 
 def start_task(execution_task: str, agent_list: list):
