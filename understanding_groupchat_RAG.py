@@ -129,9 +129,9 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
 #     return f"{quote_amount} {quote_currency}"
 
 
-print("********printing agent names********")
-print("solver_tools_function: ",solver.llm_config['tools'][0]['function'])
-print("********printing agent names done********")
+# print("********printing agent names********")
+# print("solver_tools_function: ",solver.llm_config['tools'][0]['function'])
+# print("********printing agent names done********")
 
 
 def start_task(execution_task: str, agent_list: list):
