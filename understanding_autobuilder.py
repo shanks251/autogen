@@ -9,7 +9,11 @@ builder = AgentBuilder(config_file_or_env=config_file_or_env, builder_model='gpt
 building_task = "Find a paper on arxiv by programming, and analyze its application in some domain. For example, find a recent paper about gpt-4 on arxiv and find its potential applications in software."
 
 agent_list, agent_configs = builder.build(building_task, llm_config)
-print()
+print("********printing agent names********")
+for agent in agent_list:
+    print(f"{agent.name}: {agent}")
+    
+print("********printing agent names done********")
 
 def start_task(execution_task: str, agent_list: list):
     group_chat = autogen.GroupChat(agents=agent_list, messages=[], max_round=12)
