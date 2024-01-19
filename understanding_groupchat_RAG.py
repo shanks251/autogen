@@ -117,7 +117,7 @@ def currency_calculator(
     return f"{quote_amount} {quote_currency}"
 
 
-
+print("printing agent names")
 for agent in agent_list:
     print(f"{agent.name}: {agent}")
 
