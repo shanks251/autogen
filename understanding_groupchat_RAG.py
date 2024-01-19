@@ -45,7 +45,7 @@ builder = AgentBuilder(
     config_file_or_env=config_file_or_env, builder_model="gpt-3.5-turbo", agent_model="gpt-3.5-turbo"
 )
 building_task = "Generate some agents that can find read documents related to finance and solve task related to finance/economic domain. For example reading financial documents and comapring GDP for countries."
-agent_list, agent_configs = builder.build(building_task, llm_config, coding=True)
+agent_list, agent_configs = builder.build(building_task, llm_config, coding=True, use_oai_assistant=True)
 
 print("*******agent_configs*******")
 # print(agent_configs['agent_configs'][0]['system_message'])
