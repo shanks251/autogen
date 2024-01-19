@@ -102,7 +102,7 @@ currency_aid = autogen.AssistantAgent(
 )
 
 # agent_list.insert(0, boss)
-agent_list.extend([boss_aid, solver]) 
+agent_list.extend([boss_aid, solver, currency_aid]) 
     
 CurrencySymbol = Literal["USD", "EUR"]
 
@@ -130,7 +130,7 @@ def currency_calculator(
 
 
 print("********printing agent names********")
-print("solver.llm_config: ",solver.llm_config)
+print("solver_tools: ",solver.llm_config['tools'])
 print("********printing agent names done********")
 
 
