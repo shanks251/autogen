@@ -130,7 +130,7 @@ def currency_calculator(
 
 
 print("********printing agent names********")
-print("solver_tools: ",solver.llm_config['tools'])
+print("solver_tools_function: ",solver.llm_config['tools'][0]['function'])
 print("********printing agent names done********")
 
 
