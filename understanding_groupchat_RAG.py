@@ -48,7 +48,9 @@ building_task = "Generate some agents that can find read documents related to fi
 agent_list, agent_configs = builder.build(building_task, llm_config, coding=True)
 
 print("*******agent_configs*******")
-print(agent_configs['agent_configs'][0]['system_message'])
+# print(agent_configs['agent_configs'][0]['system_message'])
+saved_path = builder.save()
+print("saved_path", saved_path)
 print("*******agent_configs_done*******")
 # for agent in agent_list:
 #     print("agent__: ", agent)
