@@ -64,7 +64,7 @@ boss = autogen.UserProxyAgent(
     max_consecutive_auto_reply=10,
     default_auto_reply="Reply `TERMINATE` if the task is done.",
 )
-# boss = agent_list[0]
+boss = agent_list[0]
 
 boss_aid = RetrieveUserProxyAgent(
     name="Boss_Assistant",
