@@ -50,6 +50,7 @@ print(agent_configs)
 print("*******agent_configs*******")
 for agent_config in agent_configs['agent_configs']:
     print(agent_config["name"])
+    print(agent_config["system_message"])
 print("*******agent_configs_done*******")
 # for agent in agent_list:
 #     print("agent__: ", agent)
