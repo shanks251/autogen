@@ -55,15 +55,15 @@ print("*******agent_configs_done*******")
 # for agent in agent_list:
 #     print("agent__: ", agent)
 
-boss = autogen.UserProxyAgent(
-    name="Boss",
-    is_termination_msg=termination_msg,
-    human_input_mode="NEVER",
-    system_message="The boss who ask questions, give tasks and execute code accordingly.",
-    # code_execution_config=None,  # we do want to execute code in this case.
-    max_consecutive_auto_reply=10,
-    default_auto_reply="Reply `TERMINATE` if the task is done.",
-)
+# boss = autogen.UserProxyAgent(
+#     name="Boss",
+#     is_termination_msg=termination_msg,
+#     human_input_mode="NEVER",
+#     system_message="The boss who ask questions, give tasks and execute code accordingly.",
+#     # code_execution_config=None,  # we do want to execute code in this case.
+#     max_consecutive_auto_reply=10,
+#     default_auto_reply="Reply `TERMINATE` if the task is done.",
+# )
 boss = agent_list[0]
 
 boss_aid = RetrieveUserProxyAgent(
@@ -130,7 +130,7 @@ def currency_calculator(
 
 
 print("********printing agent names********")
-print("boss.llm_config: ",boss.llm_config)
+print("solver.llm_config: ",solver.llm_config)
 print("********printing agent names done********")
 
 
