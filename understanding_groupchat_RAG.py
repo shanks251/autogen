@@ -87,7 +87,7 @@ solver = autogen.AssistantAgent(
     system_message="For currency exchange tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
-agent_list.insert(0, boss)
+# agent_list.insert(0, boss)
 agent_list.extend([boss_aid, solver]) 
     
 CurrencySymbol = Literal["USD", "EUR"]
@@ -104,7 +104,7 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
         raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
 
-@boss.register_for_execution()
+@boss_aid.register_for_execution()
 @solver.register_for_llm(description="Currency exchange calculator.")
 def currency_calculator(
     base_amount: Annotated[float, "Amount of currency in base_currency"],
