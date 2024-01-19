@@ -97,7 +97,7 @@ solver = autogen.AssistantAgent(
 
 currency_aid = autogen.AssistantAgent(
     name="currency_aid",
-    system_message="Suggest correct currency of given countries. Reply TERMINATE when the task is done.",
+    system_message="Suggest currency of given countries. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
 
