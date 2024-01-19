@@ -54,12 +54,12 @@ boss = autogen.UserProxyAgent(
     name="Boss",
     is_termination_msg=termination_msg,
     human_input_mode="NEVER",
-    system_message="The boss who ask questions and give tasks.",
+    system_message="The boss who ask questions, give tasks and execute code accordingly.",
     # code_execution_config=None,  # we do want to execute code in this case.
     max_consecutive_auto_reply=10,
     default_auto_reply="Reply `TERMINATE` if the task is done.",
 )
-boss = agent_list[0]
+# boss = agent_list[0]
 
 boss_aid = RetrieveUserProxyAgent(
     name="Boss_Assistant",
@@ -135,10 +135,10 @@ def start_task(execution_task: str, agent_list: list):
         n_results=1,
     )
     
-start_task(
-    execution_task=PROBLEM,
-    agent_list=agent_list,
-)
+# start_task(
+#     execution_task=PROBLEM,
+#     agent_list=agent_list,
+# )
 
 
 
@@ -160,7 +160,7 @@ def rag_chat():
     boss_aid.initiate_chat(
         manager,
         problem=PROBLEM,
-        n_results=3,
+        n_results=1,
     )
 
 def call_rag_chat():
@@ -235,5 +235,5 @@ def call_rag_chat():
         message=PROBLEM,
     )
     
-# rag_chat()
+rag_chat()
 # call_rag_chat()
