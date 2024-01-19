@@ -45,7 +45,7 @@ builder = AgentBuilder(
     config_file_or_env=config_file_or_env, builder_model="gpt-3.5-turbo", agent_model="gpt-3.5-turbo"
 )
 building_task = "Generate some agents that can find read documents related to finance and solve task related to finance/economic domain. For example reading financial documents and comapring GDP for countries."
-agent_list, agent_configs = builder.build(building_task, llm_config)
+agent_list, agent_configs = builder.build(building_task, llm_config, coding=True)
 
 for agent in agent_list:
     print("agent__: ", agent)
@@ -59,6 +59,7 @@ boss = autogen.UserProxyAgent(
     max_consecutive_auto_reply=10,
     default_auto_reply="Reply `TERMINATE` if the task is done.",
 )
+boss = agent_list[0]
 
 boss_aid = RetrieveUserProxyAgent(
     name="Boss_Assistant",
@@ -73,7 +74,8 @@ boss_aid = RetrieveUserProxyAgent(
             "/content/drive/MyDrive/sample_doc/sample_2.pdf",
             "/content/drive/MyDrive/sample_doc/sample_3.pdf"
         ],
-        "chunk_token_size": 1000,
+        "chunk_token_size": 500,
+        "max_tokens":1000,
         "model": config_list[0]["model"],
         "client": chromadb.PersistentClient(path="/tmp/chromadb"),
         "collection_name": "groupchat",
@@ -104,7 +106,7 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
         raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
 
-@boss_aid.register_for_execution()
+@boss.register_for_execution()
 @solver.register_for_llm(description="Currency exchange calculator.")
 def currency_calculator(
     base_amount: Annotated[float, "Amount of currency in base_currency"],
@@ -117,7 +119,7 @@ def currency_calculator(
 
 
 for agent in agent_list:
-    print("agent: ", agent)
+    print(f"{agent.name}: {agent}")
 
 
 def start_task(execution_task: str, agent_list: list):
@@ -128,7 +130,7 @@ def start_task(execution_task: str, agent_list: list):
     boss_aid.initiate_chat(
         manager,
         problem=execution_task,
-        n_results=3,
+        n_results=1,
     )
     
 start_task(
