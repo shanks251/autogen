@@ -118,15 +118,15 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
         raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
 
-@boss.register_for_execution()
-@solver.register_for_llm(description="Currency exchange calculator.")
-def currency_calculator(
-    base_amount: Annotated[float, "Amount of currency in base_currency"],
-    base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
-    quote_currency: Annotated[CurrencySymbol, "Quote currency"] = "EUR",
-) -> str:
-    quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
-    return f"{quote_amount} {quote_currency}"
+# @boss.register_for_execution()
+# @solver.register_for_llm(description="Currency exchange calculator.")
+# def currency_calculator(
+#     base_amount: Annotated[float, "Amount of currency in base_currency"],
+#     base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
+#     quote_currency: Annotated[CurrencySymbol, "Quote currency"] = "EUR",
+# ) -> str:
+#     quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
+#     return f"{quote_amount} {quote_currency}"
 
 
 print("********printing agent names********")
@@ -149,9 +149,6 @@ def start_task(execution_task: str, agent_list: list):
 #     execution_task=PROBLEM,
 #     agent_list=agent_list,
 # )
-
-
-
 
 def _reset_agents():
     boss.reset()
@@ -190,7 +187,25 @@ def call_rag_chat():
         else:
             ret_msg = boss_aid.generate_init_message(message, n_results=n_results)
         return ret_msg if ret_msg else message
-
+    
+    def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol) -> float:
+        if base_currency == quote_currency:
+            return 1.0
+        elif base_currency == "USD" and quote_currency == "EUR":
+            return 1 / 1.1
+        elif base_currency == "EUR" and quote_currency == "USD":
+            return 1.1
+        else:
+            raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
+    
+    def currency_calculator(
+        base_amount: Annotated[float, "Amount of currency in base_currency"],
+        base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
+        quote_currency: Annotated[CurrencySymbol, "Quote currency"] = "EUR",
+    ) -> str:
+        quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
+        return f"{quote_amount} {quote_currency}"
+    
     boss_aid.human_input_mode = "NEVER"  # Disable human input for boss_aid since it only retrieves content.
 
     llm_config = {
@@ -209,21 +224,37 @@ def call_rag_chat():
                     "required": ["message"],
                 },
             },
+            {'description': 'Currency exchange calculator.', 'name': 'currency_calculator', 
+                'parameters': {'type': 'object', 
+                'properties': {
+                'base_amount': {'type': 'number', 'description': 'Amount of currency in base_currency'}, 
+                'base_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'USD', 'description': 'Base currency'}, 
+                'quote_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'EUR', 'description': 'Quote currency'}}, 
+                'required': ['base_amount']
+                }
+            }
         ],
         "config_list": config_list,
         "timeout": 60,
         "cache_seed": 42,
     }
+    
+    
 
-    for agent in [solver]:
+    for agent in [solver, currency_aid]:
         # update llm_config for assistant agents.
         agent.llm_config.update(llm_config)
 
-    for agent in [solver]:
+    for agent in [boss, solver, currency_aid]:
         # register functions for all agents.
         agent.register_function(
             function_map={
                 "retrieve_content": retrieve_content,
+            }
+        )
+        agent.register_function(
+            function_map={
+                "currency_calculator": currency_calculator,
             }
         )
 
@@ -245,5 +276,5 @@ def call_rag_chat():
         message=PROBLEM,
     )
     
-rag_chat()
-# call_rag_chat()
+# rag_chat()
+call_rag_chat()
