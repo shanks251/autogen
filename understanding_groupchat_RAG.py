@@ -257,6 +257,7 @@ def call_rag_chat():
                 "currency_calculator": currency_calculator,
             }
         )
+    for agent in [solver, currency_aid]:
         print(f"agent_tools_function: ,{agent.llm_config['tools'][0]['function']}")
 
     groupchat = autogen.GroupChat(
