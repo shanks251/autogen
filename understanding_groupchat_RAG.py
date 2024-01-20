@@ -263,7 +263,7 @@ def call_rag_chat():
         print(f"agent_tools_function: ,{agent.llm_config}")
 
     groupchat = autogen.GroupChat(
-        agents=[boss, solver],
+        agents=[boss, solver, currency_aid],
         messages=[],
         max_round=12,
         speaker_selection_method="random",
@@ -279,6 +279,8 @@ def call_rag_chat():
         manager,
         message=PROBLEM,
     )
-    
+
+print("rag_chat")    
 rag_chat()
+print("call_rag_chat")
 call_rag_chat()
