@@ -119,7 +119,7 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
 
 
 @boss.register_for_execution()
-@solver.register_for_llm(description="Currency exchange calculator.")
+@currency_aid.register_for_llm(description="Currency exchange calculator.")
 def currency_calculator(
     base_amount: Annotated[float, "Amount of currency in base_currency"],
     base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
@@ -159,7 +159,7 @@ def _reset_agents():
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, boss_aid, solver, currency_aid], messages=[], max_round=12, speaker_selection_method="auto"
+        agents=[boss, boss_aid, currency_aid], messages=[], max_round=12, speaker_selection_method="auto"
     )
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
