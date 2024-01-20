@@ -188,6 +188,8 @@ def call_rag_chat():
             ret_msg = boss_aid.generate_init_message(message, n_results=n_results)
         return ret_msg if ret_msg else message
     
+    CurrencySymbol = Literal["USD", "EUR"]
+    
     def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol) -> float:
         if base_currency == quote_currency:
             return 1.0
@@ -278,5 +280,5 @@ def call_rag_chat():
         message=PROBLEM,
     )
     
-# rag_chat()
+rag_chat()
 call_rag_chat()
