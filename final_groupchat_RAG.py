@@ -101,9 +101,9 @@ def currency_calculator(
     return f"{quote_amount} {quote_currency}"
 
 
-# print("********printing agent names********")
-# print("currency_aid_tools_function: ",currency_aid.llm_config['tools'][0]['function'])
-# print("********printing agent names done********")
+print("********printing agent tool********")
+print("currency_aid_tools_function: ",currency_aid.llm_config['tools'][0]['function'])
+print("********printing agent tool done********")
 
 
 def _reset_agents():
@@ -114,8 +114,8 @@ def _reset_agents():
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, currency_aid], messages=[], max_round=12, speaker_selection_method="auto"
-    )
+        agents=[boss, currency_aid], messages=[], max_round=12, 
+        speaker_selection_method="auto",  allow_repeat_speaker=False)
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
     # Start chatting with boss_aid as this is the user proxy agent.
