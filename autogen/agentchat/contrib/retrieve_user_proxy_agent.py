@@ -425,12 +425,16 @@ class RetrieveUserProxyAgent(UserProxyAgent):
         Returns:
             str: the generated prompt ready to be sent to the assistant agent.
         """
+        print("in_retrieve_generate_init_message")
+        print("problem: ", problem)
+        print("self._task: ", self._task)
         self._reset()
         self.retrieve_docs(problem, n_results, search_string)
         self.problem = problem
         self.n_results = n_results
         doc_contents = self._get_context(self._results)
         message = self._generate_message(doc_contents, self._task)
+        print("message: ", message)
         return message
 
     def run_code(self, code, **kwargs):
