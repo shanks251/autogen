@@ -38,7 +38,7 @@ def termination_msg(x):
     return isinstance(x, dict) and "TERMINATE" == str(x.get("content", ""))[-9:].upper()
 
 
-PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies"
+PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
 
 
 boss = RetrieveUserProxyAgent(
@@ -62,12 +62,6 @@ boss = RetrieveUserProxyAgent(
         "get_or_create": True,
     },
     code_execution_config=False,  # we don't want to execute code in this case.
-)
-
-solver = autogen.AssistantAgent(
-    name="solver",
-    system_message="For currency exchange tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
-    llm_config=llm_config,
 )
 
 currency_aid = autogen.AssistantAgent(
@@ -108,7 +102,7 @@ print("********printing agent tool done********")
 
 def _reset_agents():
     boss.reset()
-    solver.reset()
+    currency_aid.reset()
 
 
 def rag_chat():
