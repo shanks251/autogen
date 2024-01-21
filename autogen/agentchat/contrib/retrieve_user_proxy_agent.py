@@ -428,6 +428,9 @@ class RetrieveUserProxyAgent(UserProxyAgent):
         print("in_retrieve_generate_init_message")
         print("problem: ", problem)
         print("self._task: ", self._task)
+        print("_max_tokens: ", self._max_tokens)
+        print("_chunk_token_size: ",self._chunk_token_size)
+        print("_context_max_tokens: ",self._context_max_tokens)
         self._reset()
         self.retrieve_docs(problem, n_results, search_string)
         self.problem = problem
