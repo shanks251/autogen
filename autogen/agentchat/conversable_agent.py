@@ -576,10 +576,10 @@ class ConversableAgent(Agent):
             **context: any context information.
                 "message" needs to be provided if the `generate_init_message` method is not overridden.
         """
-        # print("__in_initiate_chat")
+        print("__in_initiate_chat")
         self._prepare_chat(recipient, clear_history)
         self.send(self.generate_init_message(**context), recipient, silent=silent)
-        # print("self.Send_done")
+        print("self.Send_done")
 
     async def a_initiate_chat(
         self,

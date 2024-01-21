@@ -79,4 +79,5 @@ assistant.reset()
 # The conversation continues until the termination condition is met, in RetrieveChat, the termination condition when no human-in-loop is no code block detected.
 # With human-in-loop, the conversation will continue until the user says "exit".
 code_problem = "How can I use FLAML to perform a classification task and use spark to do parallel training. Train 30 seconds and force cancel jobs if time limit is reached."
-ragproxyagent.initiate_chat(assistant, problem=code_problem, search_string="spark")  # search_string is used as an extra filter for the embeddings search, in this case, we only want to search documents that contain "spark".
+ragproxyagent.initiate_chat(assistant, problem=code_problem, 
+                            search_string="spark", n_results=1)  # search_string is used as an extra filter for the embeddings search, in this case, we only want to search documents that contain "spark".
