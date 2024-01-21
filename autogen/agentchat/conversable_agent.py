@@ -578,6 +578,7 @@ class ConversableAgent(Agent):
         """
         print("__in_initiate_chat")
         self._prepare_chat(recipient, clear_history)
+        print("in_generate_init_message")
         self.send(self.generate_init_message(**context), recipient, silent=silent)
         print("self.Send_done")
 
