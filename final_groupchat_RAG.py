@@ -46,7 +46,7 @@ boss = RetrieveUserProxyAgent(
     is_termination_msg=termination_msg,
     system_message="Assistant who has extra content retrieval power for solving difficult problems.",
     human_input_mode="NEVER",
-    max_consecutive_auto_reply=5,
+    max_consecutive_auto_reply=10,
     retrieve_config={
         "task": "code",
         "docs_path": [
@@ -108,7 +108,7 @@ def _reset_agents():
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, currency_aid], messages=[], max_round=15, 
+        agents=[boss, currency_aid], messages=[], max_round=20, 
         speaker_selection_method="auto",  allow_repeat_speaker=False)
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
