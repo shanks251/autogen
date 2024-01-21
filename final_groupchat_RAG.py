@@ -102,7 +102,7 @@ def currency_calculator(
 
 
 print("********printing agent tool********")
-print("currency_aid_tools_function: ",currency_aid.llm_config['tools'][0]['function'])
+print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
 print("********printing agent tool done********")
 
 
