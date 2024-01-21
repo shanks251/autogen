@@ -434,7 +434,7 @@ class RetrieveUserProxyAgent(UserProxyAgent):
         self.n_results = n_results
         doc_contents = self._get_context(self._results)
         message = self._generate_message(doc_contents, self._task)
-        print("message: ", message)
+        # print("message: ", message)
         return message
 
     def run_code(self, code, **kwargs):
