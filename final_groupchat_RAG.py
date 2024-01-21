@@ -55,7 +55,7 @@ boss = RetrieveUserProxyAgent(
             "/content/drive/MyDrive/sample_doc/sample_3.pdf"
         ],
         "chunk_token_size": 500,
-        "max_tokens":1000,
+        # "max_tokens":1000,
         "model": config_list[0]["model"],
         "client": chromadb.PersistentClient(path="/tmp/chromadb"),
         "collection_name": "groupchat",
