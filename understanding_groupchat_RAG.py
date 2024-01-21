@@ -135,7 +135,8 @@ def currency_calculator(
 
 
 def start_task(execution_task: str, agent_list: list):
-    group_chat = autogen.GroupChat(agents=agent_list, messages=[], max_round=12, speaker_selection_method="auto")
+    group_chat = autogen.GroupChat(agents=agent_list, messages=[], max_round=12, 
+                                   speaker_selection_method="auto", allow_repeat_speaker=False)
     manager = autogen.GroupChatManager(groupchat=group_chat, llm_config={"config_list": config_list, **llm_config})
     # agent_list[0].initiate_chat(manager, message=execution_task)   
     # Start chatting with boss_aid as this is the user proxy agent.
