@@ -61,7 +61,7 @@ ragproxyagent = RetrieveUserProxyAgent(
             "/content/drive/MyDrive/sample_doc/sample_3.pdf"
         ],
         "custom_text_types": ["mdx"],
-        "chunk_token_size": 500,
+        "chunk_token_size": 1000,
         "model": config_list[0]["model"],
         "client": chromadb.PersistentClient(path="/tmp/chromadb"),
         "embedding_model": "all-mpnet-base-v2",
