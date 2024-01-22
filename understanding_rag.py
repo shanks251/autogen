@@ -61,7 +61,7 @@ ragproxyagent = RetrieveUserProxyAgent(
             "/content/drive/MyDrive/sample_doc/sample_3.pdf"
         ],
         "custom_text_types": ["mdx"],
-        "chunk_token_size": 2000,
+        "chunk_token_size": 500,
         "model": config_list[0]["model"],
         "client": chromadb.PersistentClient(path="/tmp/chromadb"),
         "embedding_model": "all-mpnet-base-v2",
@@ -81,4 +81,4 @@ assistant.reset()
 PROBLEM= "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
 
 ragproxyagent.initiate_chat(assistant, problem=PROBLEM, 
-                            search_string="GDP", n_results=2)  # search_string is used as an extra filter for the embeddings search, in this case, we only want to search documents that contain "spark".
+                            search_string="GDP", n_results=1)  # search_string is used as an extra filter for the embeddings search, in this case, we only want to search documents that contain "spark".
