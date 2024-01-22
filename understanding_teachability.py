@@ -1,6 +1,6 @@
 import autogen
-from autogen.agentchat.contrib.teachable_agent import TeachableAgent
-from autogen import UserProxyAgent
+from autogen.agentchat.contrib.capabilities.teachability import Teachability
+from autogen import ConversableAgent, UserProxyAgent
 
 config_list = autogen.config_list_from_json(
     "/content/drive/MyDrive/OAI_CONFIG_LIST",
@@ -15,6 +15,7 @@ config_list = autogen.config_list_from_json(
     },
 )
 
+print(config_list[0]["model"])
 
 llm_config = {
     "config_list": config_list,
@@ -36,18 +37,41 @@ except ImportError:
     def colored(x, *args, **kwargs):
         return x
     
-teachable_agent = TeachableAgent(
-    name="teachableagent",
-    llm_config=llm_config,
-    teach_config=teach_config)
+# Start by instantiating any agent that inherits from ConversableAgent.
+teachable_agent = ConversableAgent(
+    name="teachable_agent",  # The name is flexible, but should not contain spaces to work in group chat.
+    llm_config={"config_list": config_list, "timeout": 120, "cache_seed": None},  # Disable caching.
+)
 
+# Instantiate the Teachability capability. Its parameters are all optional.
+teachability = Teachability(
+    verbosity=0,  # 0 for basic info, 1 to add memory operations, 2 for analyzer messages, 3 for memo lists.
+    reset_db=True,
+    path_to_db_dir="./tmp/notebook/teachability_db",
+    recall_threshold=1.5,  # Higher numbers allow more (but less relevant) memos to be recalled.
+)
+
+# Now add the Teachability capability to the agent.
+teachability.add_to_agent(teachable_agent)
+
+try:
+    from termcolor import colored
+except ImportError:
+
+    def colored(x, *args, **kwargs):
+        return x
+
+
+# Instantiate a UserProxyAgent to represent the user. But in this notebook, all user input will be simulated.
 user = UserProxyAgent(
     name="user",
     human_input_mode="NEVER",
     is_termination_msg=lambda x: True if "TERMINATE" in x.get("content") else False,
     max_consecutive_auto_reply=0,
+    code_execution_config={
+        "use_docker": False
+    },  # Please set use_docker=True if docker is available to run the generated code. Using docker is safer than running the generated code directly.
 )
-
 
 text = "What is the Vicuna model?"
 user.initiate_chat(teachable_agent, message=text, clear_history=True)
@@ -58,13 +82,8 @@ user.initiate_chat(teachable_agent, message=text, clear_history=False)
 text = "What is the Orca model?"
 user.initiate_chat(teachable_agent, message=text, clear_history=False)
 
-text = "Orca is a 13B-parameter language model released by Microsoft. It outperforms Vicuna on most tasks."
+text = "Orca is a 13B-parameter language model developed by Microsoft. It outperforms Vicuna on most tasks."
 user.initiate_chat(teachable_agent, message=text, clear_history=False)
-
-
-#The following function needs to be called at the end of each chat, so that `TeachableAgent` can store what the user has taught it.
-teachable_agent.learn_from_user_feedback()
-
 
 text = "How does the Vicuna model compare to the Orca model?"
 user.initiate_chat(teachable_agent, message=text, clear_history=True)
