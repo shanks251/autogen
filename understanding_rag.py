@@ -78,7 +78,7 @@ assistant.reset()
 # the assistant receives the message and generates a response. The response will be sent back to the ragproxyagent for processing.
 # The conversation continues until the termination condition is met, in RetrieveChat, the termination condition when no human-in-loop is no code block detected.
 # With human-in-loop, the conversation will continue until the user says "exit".
-code_problem = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
+PROBLEM= "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
 
-ragproxyagent.initiate_chat(assistant, problem=code_problem, 
+ragproxyagent.initiate_chat(assistant, problem=PROBLEM, 
                             search_string="spark", n_results=2)  # search_string is used as an extra filter for the embeddings search, in this case, we only want to search documents that contain "spark".
