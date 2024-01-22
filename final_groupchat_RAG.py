@@ -116,6 +116,7 @@ def rag_chat():
     boss.initiate_chat(
         manager,
         problem=PROBLEM,
+        search_string="GDP"
         n_results=1,
     )
   
