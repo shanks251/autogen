@@ -95,9 +95,9 @@ def currency_calculator(
     return f"{quote_amount} {quote_currency}"
 
 
-print("********printing agent tool********")
-print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
-print("********printing agent tool done********")
+# print("********printing agent tool********")
+# print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
+# print("********printing agent tool done********")
 
 
 def _reset_agents():
