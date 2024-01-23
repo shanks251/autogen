@@ -1221,6 +1221,9 @@ class ConversableAgent(Agent):
         """
         func_name = func_call.get("name", "")
         func = self._function_map.get(func_name, None)
+        
+        print("in_execute_function")
+        print(f"func_name: {func_name} and func: {func}")
 
         is_exec_success = False
         if func is not None:
