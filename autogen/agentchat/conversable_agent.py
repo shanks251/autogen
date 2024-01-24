@@ -1226,6 +1226,7 @@ class ConversableAgent(Agent):
         Returns:
             str or dict or None: reply. None if no reply is generated.
         """
+        print("*****in_generate_reply*****")
         if all((messages is None, sender is None)):
             error_msg = f"Either {messages=} or {sender=} must be provided."
             logger.error(error_msg)
@@ -1237,7 +1238,6 @@ class ConversableAgent(Agent):
         # Call the hookable method that gives registered hooks a chance to process the last message.
         # Message modifications do not affect the incoming messages or self._oai_messages.
         messages = self.process_last_message(messages)
-        print("*****in_generate_reply*****")
         for reply_func_tuple in self._reply_func_list:
             reply_func = reply_func_tuple["reply_func"]
             print(f"reply_func: {reply_func}")
