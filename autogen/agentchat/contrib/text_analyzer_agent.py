@@ -67,6 +67,8 @@ class TextAnalyzerAgent(ConversableAgent):
             [analysis_instructions, text_to_analyze, analysis_instructions]
         )  # Repeat the instructions.
         # Generate and return the analysis string.
+        print()
+        print("**in_text_analyzer_analyze_text**")
         print(f"text_to_analyze: {text_to_analyze}")
         print(f"analysis_instructions: {analysis_instructions}")
         print(f"msg_text: {msg_text}")
