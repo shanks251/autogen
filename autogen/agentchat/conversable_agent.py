@@ -1234,12 +1234,13 @@ class ConversableAgent(Agent):
 
         if messages is None:
             messages = self._oai_messages[sender]
-
+            
+        print(f"self._default_auto_reply: {self._default_auto_reply}")
         # Call the hookable method that gives registered hooks a chance to process the last message.
         # Message modifications do not affect the incoming messages or self._oai_messages.
         messages = self.process_last_message(messages)
-        print(f"generate_reply_messages: {messages}")
-        print(f"self._default_auto_reply: {self._default_auto_reply}")
+        print("generate_reply_messages:")
+        print(messages)
         for reply_func_tuple in self._reply_func_list:
             reply_func = reply_func_tuple["reply_func"]
             print(f"reply_func: {reply_func}")
