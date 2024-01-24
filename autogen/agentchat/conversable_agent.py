@@ -582,7 +582,6 @@ class ConversableAgent(Agent):
         self._process_received_message(message, sender, silent)
         if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
             return
-        print("above_generate_reply")
         reply = self.generate_reply(messages=self.chat_messages[sender], sender=sender)
         print(f"reply: {reply}")
         if reply is not None:
@@ -679,6 +678,7 @@ class ConversableAgent(Agent):
             agent._raise_exception_on_async_reply_functions()
         self._prepare_chat(recipient, clear_history)
         self.send(self.generate_init_message(**context), recipient, silent=silent)
+        print("send_completed")
 
     async def a_initiate_chat(
         self,
