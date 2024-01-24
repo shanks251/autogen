@@ -573,7 +573,7 @@ class ConversableAgent(Agent):
         Raises:
             ValueError: if the message can't be converted into a valid ChatCompletion message.
         """
-        print("in_recieve")
+        print("***in_recieve***")
         print(f"message: {message}")
         print(f"sender: {sender}")
         print(f"Receiver: {self}")
@@ -581,8 +581,8 @@ class ConversableAgent(Agent):
         print(f"self.reply_at_receive[sender]: {self.reply_at_receive[sender]}")
         self._process_received_message(message, sender, silent)
         if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
-            print("***in_bool***")
             return
+        print("above_generate_reply")
         reply = self.generate_reply(messages=self.chat_messages[sender], sender=sender)
         print(f"reply: {reply}")
         if reply is not None:
