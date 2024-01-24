@@ -1239,6 +1239,7 @@ class ConversableAgent(Agent):
         # Message modifications do not affect the incoming messages or self._oai_messages.
         messages = self.process_last_message(messages)
         print(f"generate_reply_messages: {messages}")
+        print(f"self._default_auto_reply: {self._default_auto_reply}")
         for reply_func_tuple in self._reply_func_list:
             reply_func = reply_func_tuple["reply_func"]
             print(f"reply_func: {reply_func}")
