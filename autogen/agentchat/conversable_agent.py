@@ -1894,9 +1894,9 @@ class ConversableAgent(Agent):
 
         # Call each hook (in order of registration) to process the user's message.
         processed_user_text = user_text
-        print(f"hook_list: {hook_list}")
-        print(f"user_text: {user_text}")
+        print(f"user_text: {processed_user_text}")
         for hook in hook_list:
+            print(f"hook: {hook}")
             processed_user_text = hook(processed_user_text)
         if processed_user_text == user_text:
             return messages  # No hooks actually modified the user's message.
