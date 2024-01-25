@@ -1869,7 +1869,7 @@ class ConversableAgent(Agent):
         Calls any registered capability hooks to use and potentially modify the text of the last message,
         as long as the last message is not a function call or exit command.
         """
-        print("in_ConvAgent_process_last_message")
+        print("******************in_ConvAgent_process_last_message******************")
 
         # If any required condition is not met, return the original message list.
         hook_list = self.hook_lists[self.process_last_message]
@@ -1906,4 +1906,5 @@ class ConversableAgent(Agent):
         # Replace the last user message with the expanded one.
         messages = messages.copy()
         messages[-1]["content"] = processed_user_text
+        print("******************in_ConvAgent_process_last_message_ended******************")
         return messages
