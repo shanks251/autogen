@@ -87,6 +87,7 @@ class Teachability(AgentCapability):
         Appends any relevant memos to the message text, and stores any apparent teachings in new memos.
         Uses TextAnalyzerAgent to make decisions about memo storage and retrieval.
         """
+        print("in_Teachability_process_last_message")
 
         # Try to retrieve relevant memos from the DB.
         expanded_text = text
