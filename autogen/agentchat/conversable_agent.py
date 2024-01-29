@@ -1894,7 +1894,7 @@ class ConversableAgent(Agent):
 
         # Call each hook (in order of registration) to process the user's message.
         processed_user_text = user_text
-        print(f"user_text: {processed_user_text}")
+        # print(f"user_text: {processed_user_text}")
         for hook in hook_list:
             print("********************************hook_start********************************")
             print(f"hook: {hook}")
