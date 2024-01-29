@@ -415,7 +415,7 @@ class ConversableAgent(Agent):
         """
         # When the agent composes and sends the message, the role of the message is "assistant"
         # unless it's "function".
-        print("**in_send**")
+        # print("**in_send**")
         valid = self._append_oai_message(message, "assistant", recipient)
         if valid:
             recipient.receive(message, self, request_reply, silent)
@@ -583,7 +583,7 @@ class ConversableAgent(Agent):
         if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
             return
         reply = self.generate_reply(messages=self.chat_messages[sender], sender=sender)
-        print(f"reply: {reply}")
+        # print(f"reply: {reply}")
         if reply is not None:
             self.send(reply, sender, silent=silent)
 
