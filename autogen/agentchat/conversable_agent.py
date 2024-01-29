@@ -573,12 +573,12 @@ class ConversableAgent(Agent):
         Raises:
             ValueError: if the message can't be converted into a valid ChatCompletion message.
         """
-        print("***in_recieve***")
-        print(f"message: {message}")
-        print(f"sender: {sender}")
-        print(f"Receiver: {self}")
-        print(f"request_reply: {request_reply}")
-        print(f"self.reply_at_receive[sender]: {self.reply_at_receive[sender]}")
+        # print("***in_recieve***")
+        # print(f"message: {message}")
+        # print(f"sender: {sender}")
+        # print(f"Receiver: {self}")
+        # print(f"request_reply: {request_reply}")
+        # print(f"self.reply_at_receive[sender]: {self.reply_at_receive[sender]}")
         self._process_received_message(message, sender, silent)
         if request_reply is False or request_reply is None and self.reply_at_receive[sender] is False:
             return
@@ -1226,7 +1226,7 @@ class ConversableAgent(Agent):
         Returns:
             str or dict or None: reply. None if no reply is generated.
         """
-        print("*****in_generate_reply*****")
+        # print("*****in_generate_reply*****")
         if all((messages is None, sender is None)):
             error_msg = f"Either {messages=} or {sender=} must be provided."
             logger.error(error_msg)
@@ -1242,7 +1242,7 @@ class ConversableAgent(Agent):
         print()
         for reply_func_tuple in self._reply_func_list:
             reply_func = reply_func_tuple["reply_func"]
-            print(f"reply_func: {reply_func}")
+            # print(f"reply_func: {reply_func}")
             if exclude and reply_func in exclude:
                 continue
             if inspect.iscoroutinefunction(reply_func):
