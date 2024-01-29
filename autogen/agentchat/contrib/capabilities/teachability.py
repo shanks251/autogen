@@ -94,7 +94,7 @@ class Teachability(AgentCapability):
         if self.memo_store.last_memo_id > 0:
             print("**in__consider_memo_retrieval")
             expanded_text = self._consider_memo_retrieval(text)
-            print("_consider_memo_retrieval_expanded_text: ")
+            print("**_consider_memo_retrieval_expanded_text: ")
             print(expanded_text)
             print("**in__consider_memo_retrieval_ended")
 
