@@ -96,6 +96,8 @@ class Teachability(AgentCapability):
 
         # Try to store any user teachings in new memos to be used in the future.
         self._consider_memo_storage(text)
+        
+        print("in_Teachability_process_last_message_ended")
 
         # Return the (possibly) expanded message text.
         return expanded_text
