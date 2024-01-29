@@ -94,6 +94,7 @@ class Teachability(AgentCapability):
         if self.memo_store.last_memo_id > 0:
             print("**in__consider_memo_retrieval")
             expanded_text = self._consider_memo_retrieval(text)
+            print(f"_consider_memo_retrieval_expanded_text: {expanded_text}")
             print("**in__consider_memo_retrieval_ended")
 
         # Try to store any user teachings in new memos to be used in the future.
