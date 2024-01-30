@@ -149,15 +149,15 @@ def currency_calculator(
 def _reset_agents():
     boss.reset()
     currency_aid.reset()
-    planner.reset()
-    planner_user.reset()
-    assistant.reset()
+    # planner.reset()
+    # planner_user.reset()
+    # assistant.reset()
 
 
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, currency_aid, assistant], messages=[], max_round=20, 
+        agents=[boss, currency_aid], messages=[], max_round=20, 
         speaker_selection_method="auto",  allow_repeat_speaker=False)
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
