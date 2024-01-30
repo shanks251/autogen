@@ -1896,10 +1896,10 @@ class ConversableAgent(Agent):
         processed_user_text = user_text
         # print(f"user_text: {processed_user_text}")
         for hook in hook_list:
-            print("********************************hook_start********************************")
-            print(f"hook: {hook}")
+            # print("********************************hook_start********************************")
+            # print(f"hook: {hook}")
             processed_user_text = hook(processed_user_text)
-            print("********************************hook_end********************************")
+            # print("********************************hook_end********************************")
         if processed_user_text == user_text:
             return messages  # No hooks actually modified the user's message.
 
