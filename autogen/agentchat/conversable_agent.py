@@ -678,7 +678,7 @@ class ConversableAgent(Agent):
             agent._raise_exception_on_async_reply_functions()
         self._prepare_chat(recipient, clear_history)
         self.send(self.generate_init_message(**context), recipient, silent=silent)
-        print("send_completed")
+        # print("send_completed")
 
     async def a_initiate_chat(
         self,
