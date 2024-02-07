@@ -35,6 +35,13 @@ planner_user = autogen.UserProxyAgent(
     human_input_mode="NEVER",
 )
 
+# @user_proxy.register_for_execution()
+# @assistant.register_for_llm(description="ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.")
+def ask_planner(message):
+    planner_user.initiate_chat(planner, message=message)
+    # return the last message received from the planner
+    return planner_user.last_message()["content"]
+
 
 # create an AssistantAgent instance named "assistant"
 assistant = autogen.AssistantAgent(
@@ -44,22 +51,22 @@ assistant = autogen.AssistantAgent(
         "timeout": 600,
         "cache_seed": 42,
         "config_list": config_list,
-        # "functions": [
-        #     {
-        #         "name": "ask_planner",
-        #         "description": "ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.",
-        #         "parameters": {
-        #             "type": "object",
-        #             "properties": {
-        #                 "message": {
-        #                     "type": "string",
-        #                     "description": "question to ask planner. Make sure the question include enough context, such as the code and the execution result. The planner does not know the conversation between you and the user, unless you share the conversation with the planner.",
-        #                 },
-        #             },
-        #             "required": ["message"],
-        #         },
-        #     },
-        # ],
+        "functions": [
+            {
+                "name": "ask_planner",
+                "description": "ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "description": "question to ask planner. Make sure the question include enough context, such as the code and the execution result. The planner does not know the conversation between you and the user, unless you share the conversation with the planner.",
+                        },
+                    },
+                    "required": ["message"],
+                },
+            },
+        ],
     }
 )
 
@@ -70,15 +77,8 @@ user_proxy = autogen.UserProxyAgent(
     max_consecutive_auto_reply=10,
     # is_termination_msg=lambda x: "content" in x and x["content"] is not None and x["content"].rstrip().endswith("TERMINATE"),
     code_execution_config={"work_dir": "planning"},
-    # function_map={"ask_planner": ask_planner},
+    function_map={"ask_planner": ask_planner},
 )
-
-@user_proxy.register_for_execution()
-@assistant.register_for_llm(description="ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.")
-def ask_planner(message):
-    planner_user.initiate_chat(planner, message=message)
-    # return the last message received from the planner
-    return planner_user.last_message()["content"]
 
 
 CurrencySymbol = Literal["USD", "EUR"]
