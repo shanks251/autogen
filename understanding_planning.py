@@ -83,5 +83,5 @@ user_proxy = autogen.UserProxyAgent(
 # the assistant receives a message from the user, which contains the task description
 user_proxy.initiate_chat(
     assistant,
-    message="""Suggest a fix to an open good first issue of flaml""",
+    message="""What date is today? Compare the year-to-date gain for META and TESLA.""",
 )
