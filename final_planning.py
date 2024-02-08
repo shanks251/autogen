@@ -185,7 +185,7 @@ boss = RetrieveUserProxyAgent(
 
 
 print("********printing agent tool********")
-print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['function']}")
+print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
 
 # Start the chat
 start_chat([boss, currency_aid, writer, pm], PROBLEM, {"config_list": config_list})
