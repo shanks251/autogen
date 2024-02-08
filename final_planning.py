@@ -54,11 +54,50 @@ def start_chat(agents, problem, llm_config):
 PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
 
 # Define agents
+pm = autogen.AssistantAgent(
+    name="prime_minister",
+    llm_config={"config_list": config_list},
+    # the default system message of the AssistantAgent is overwritten here
+    system_message="You are the Prime Miniter of a country. Your responsible for overseeing the overall direction and priorities of the policy."
+)
+
+writer = autogen.AssistantAgent(
+    name="writer",
+    llm_config={"config_list": config_list},
+    # the default system message of the AssistantAgent is overwritten here
+    system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue for given movies description."
+)
+
+CurrencySymbol = Literal["USD", "EUR"]
+
+
+def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol) -> float:
+    if base_currency == quote_currency:
+        return 1.0
+    elif base_currency == "USD" and quote_currency == "EUR":
+        return 1 / 1.1
+    elif base_currency == "EUR" and quote_currency == "USD":
+        return 1.1
+    else:
+        raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
+
+# Define currency calculator function
+def currency_calculator(
+    base_amount: Annotated[float, "Amount of currency in base_currency"],
+    base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
+    quote_currency: Annotated[CurrencySymbol, "Quote currency"] = "EUR",
+) -> str:
+    quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
+    return f"{quote_amount} {quote_currency}"
+
 
 currency_aid = autogen.AssistantAgent(
     name="currency_assistant",
     system_message="Suggest currency of given countries and convert it. For currency conversion tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
-    llm_config={"timeout": 60, "cache_seed": 42, "config_list": config_list, "temperature": 0,
+    llm_config={"timeout": 60, 
+                "cache_seed": 42, 
+                "config_list": config_list, 
+                "temperature": 0,
                 "functions":[
                     {
                         'description': 'Currency exchange calculator.', 
@@ -72,15 +111,8 @@ currency_aid = autogen.AssistantAgent(
                             'required': ['base_amount']}
                     }
                 ]
-                },
-    
-)
-
-# planning_assistant = autogen.AssistantAgent(
-#     name="planning_assistant",
-#     system_message="Assistant who has extra planning power for solving difficult problems.",
-#     llm_config={"timeout": 600, "cache_seed": 42, "config_list": config_list},
-# )
+            },
+    )
 
 planner = autogen.AssistantAgent(
     name="planner",
@@ -88,6 +120,7 @@ planner = autogen.AssistantAgent(
     # the default system message of the AssistantAgent is overwritten here
     system_message="You are a helpful AI assistant. You suggest coding and reasoning steps for another AI assistant to accomplish a task. Do not suggest concrete code. For any action beyond writing code or reasoning, convert it to a step that can be implemented by writing code. For example, browsing the web can be implemented by writing code that reads and prints the content of a web page. Finally, inspect the execution result. If the plan is not good, suggest a better plan. If the execution is wrong, analyze the error and suggest a fix.",
 )
+
 planner_user = autogen.UserProxyAgent(
     name="planner_user",
     max_consecutive_auto_reply=0,  # terminate without auto-reply
@@ -121,54 +154,10 @@ planning_assistant = autogen.AssistantAgent(
                     },
                     "required": ["message"],
                 },
-            },
-            {
-                'description': 'Currency exchange calculator.', 
-                'name': 'currency_calculator', 
-                'parameters': {
-                    'type': 'object', 
-                    'properties': {
-                        'base_amount': {'type': 'number', 'description': 'Amount of currency in base_currency'}, 
-                        'base_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'USD', 'description': 'Base currency'}, 
-                        'quote_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'EUR', 'description': 'Quote currency'}}, 
-                    'required': ['base_amount']}
-            }
-            
+            },       
         ],
     },
 )
-
-
-writer = autogen.AssistantAgent(
-    name="writer",
-    llm_config={"config_list": config_list},
-    # the default system message of the AssistantAgent is overwritten here
-    system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue for given movies description."
-)
-
-CurrencySymbol = Literal["USD", "EUR"]
-
-
-def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol) -> float:
-    if base_currency == quote_currency:
-        return 1.0
-    elif base_currency == "USD" and quote_currency == "EUR":
-        return 1 / 1.1
-    elif base_currency == "EUR" and quote_currency == "USD":
-        return 1.1
-    else:
-        raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
-
-# Define currency calculator function
-# @boss.register_for_execution()
-# @currency_aid.register_for_llm(description="Currency exchange calculator.")
-def currency_calculator(
-    base_amount: Annotated[float, "Amount of currency in base_currency"],
-    base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
-    quote_currency: Annotated[CurrencySymbol, "Quote currency"] = "EUR",
-) -> str:
-    quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
-    return f"{quote_amount} {quote_currency}"
 
 boss = RetrieveUserProxyAgent(
     name="Boss",
@@ -191,12 +180,12 @@ boss = RetrieveUserProxyAgent(
         "get_or_create": True,
     },
     code_execution_config=False,  # we don't want to execute code in this case.
-    function_map={"currency_calculator": currency_calculator}
+    function_map={"currency_calculator": currency_calculator, "ask_planner": ask_planner}
 )
 
 
 print("********printing agent tool********")
-# print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
+print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['function']}")
 
 # Start the chat
-start_chat([boss, currency_aid], PROBLEM, {"config_list": config_list})
+start_chat([boss, currency_aid, writer, pm], PROBLEM, {"config_list": config_list})
