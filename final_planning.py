@@ -33,6 +33,44 @@ llm_config = {
 
 print("LLM models: ", [config_list[i]["model"] for i in range(len(config_list))])
 
+pm = autogen.AssistantAgent(
+    name="Prime Minister",
+    llm_config={"config_list": config_list},
+    # the default system message of the AssistantAgent is overwritten here
+    system_message="Responsible for overseeing the overall direction and priorities of the policy."
+)
+
+hm = autogen.AssistantAgent(
+    name="Home Minister",
+    llm_config={"config_list": config_list},
+    # the default system message of the AssistantAgent is overwritten here
+    system_message="Tasked with addressing domestic concerns and ensuring the policy aligns with internal needs and regulations."
+)
+
+fm = autogen.AssistantAgent(
+    name="Foreign Minister",
+    llm_config={"config_list": config_list},
+    # the default system message of the AssistantAgent is overwritten here
+    system_message="Focused on international relations and ensuring the policy aligns with our global objectives and commitments."
+)
+
+planner = autogen.AssistantAgent(
+    name="planner",
+    llm_config={"config_list": config_list},
+    # the default system message of the AssistantAgent is overwritten here
+    system_message="You are a helpful AI assistant. You suggest coding and reasoning steps for another AI assistant to accomplish a task. Do not suggest concrete code. For any action beyond writing code or reasoning, convert it to a step that can be implemented by writing code. For example, browsing the web can be implemented by writing code that reads and prints the content of a web page. Finally, inspect the execution result. If the plan is not good, suggest a better plan. If the execution is wrong, analyze the error and suggest a fix."
+)
+planner_user = autogen.UserProxyAgent(
+    name="planner_user",
+    max_consecutive_auto_reply=0,  # terminate without auto-reply
+    human_input_mode="NEVER",
+)
+
+def ask_planner(message):
+    planner_user.initiate_chat(planner, message=message)
+    # return the last message received from the planner
+    return planner_user.last_message()["content"]
+
 
 
 # create an AssistantAgent instance named "assistant"
@@ -124,23 +162,26 @@ def currency_calculator(
     return f"{quote_amount} {quote_currency}"
 
 
-# print("********printing agent tool********")
-# print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
-# print("********printing agent tool done********")
+print("********printing agent tool********")
+print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
+print("********printing agent tool done********")
 
 
 def _reset_agents():
     boss.reset()
     currency_aid.reset()
-    # planner.reset()
-    # planner_user.reset()
-    # assistant.reset()
+    planner.reset()
+    planner_user.reset()
+    assistant.reset()
+    pm.reset()
+    hm.reset()
+    fm.reset()
 
 
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, currency_aid], messages=[], max_round=20, 
+        agents=[boss, currency_aid, assistant, pm, hm, fm], messages=[], max_round=20, 
         speaker_selection_method="auto",  allow_repeat_speaker=False)
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
