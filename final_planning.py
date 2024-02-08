@@ -197,7 +197,7 @@ def _reset_agents():
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, currency_aid], messages=[], max_round=20, 
+        agents=[boss, currency_aid, assistant], messages=[], max_round=20, 
         speaker_selection_method="auto",  allow_repeat_speaker=False)
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
