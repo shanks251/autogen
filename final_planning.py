@@ -178,7 +178,7 @@ PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, deter
 
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
-print(f"{planning_assistant.name}_tools_function: ,{planning_assistant.llm_config['tools'][0]['function']}")
+# print(f"{planning_assistant.name}_tools_function: ,{planning_assistant.llm_config['tools'][0]['function']}")
 print(f"boss.function_map: {boss.function_map}")
 print("********printing agent tool done********")
 
