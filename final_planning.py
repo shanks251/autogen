@@ -91,28 +91,28 @@ def currency_calculator(
     return f"{quote_amount} {quote_currency}"
 
 
-currency_aid = autogen.AssistantAgent(
-    name="currency_assistant",
-    system_message="Suggest currency of given countries and convert it. For currency conversion tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
-    llm_config={"timeout": 60, 
-                "cache_seed": 42, 
-                "config_list": config_list, 
-                "temperature": 0,
-                "functions":[
-                    {
-                        'description': 'Currency exchange calculator.', 
-                        'name': 'currency_calculator', 
-                        'parameters': {
-                            'type': 'object', 
-                            'properties': {
-                                'base_amount': {'type': 'number', 'description': 'Amount of currency in base_currency'}, 
-                                'base_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'USD', 'description': 'Base currency'}, 
-                                'quote_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'EUR', 'description': 'Quote currency'}}, 
-                            'required': ['base_amount']}
-                    }
-                ]
-            },
-    )
+# currency_aid = autogen.AssistantAgent(
+#     name="currency_assistant",
+#     system_message="Suggest currency of given countries and convert it. For currency conversion tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
+#     llm_config={"timeout": 60, 
+#                 "cache_seed": 42, 
+#                 "config_list": config_list, 
+#                 "temperature": 0,
+#                 "functions":[
+#                     {
+#                         'description': 'Currency exchange calculator.', 
+#                         'name': 'currency_calculator', 
+#                         'parameters': {
+#                             'type': 'object', 
+#                             'properties': {
+#                                 'base_amount': {'type': 'number', 'description': 'Amount of currency in base_currency'}, 
+#                                 'base_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'USD', 'description': 'Base currency'}, 
+#                                 'quote_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'EUR', 'description': 'Quote currency'}}, 
+#                             'required': ['base_amount']}
+#                     }
+#                 ]
+#             },
+#     )
 
 planner = autogen.AssistantAgent(
     name="planner",
@@ -134,7 +134,8 @@ def ask_planner(message):
     return planner_user.last_message()["content"]
 
 planning_assistant = autogen.AssistantAgent(
-    name="assistant",
+    name="planning_assistant",
+    system_message="Your planner and you have access to planning and currency conversion tool. For currency conversion tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config={
         "temperature": 0,
         "timeout": 600,
@@ -154,7 +155,18 @@ planning_assistant = autogen.AssistantAgent(
                     },
                     "required": ["message"],
                 },
-            },       
+            }, 
+            {
+                'description': 'Currency exchange calculator.', 
+                'name': 'currency_calculator', 
+                'parameters': {
+                    'type': 'object', 
+                    'properties': {
+                        'base_amount': {'type': 'number', 'description': 'Amount of currency in base_currency'}, 
+                        'base_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'USD', 'description': 'Base currency'}, 
+                        'quote_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'EUR', 'description': 'Quote currency'}}, 
+                    'required': ['base_amount']}
+            }      
         ],
     },
 )
@@ -185,7 +197,7 @@ boss = RetrieveUserProxyAgent(
 
 
 print("********printing agent tool********")
-print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
+# print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
 
 # Start the chat
-start_chat([boss, currency_aid, planning_assistant], PROBLEM, {"config_list": config_list})
+start_chat([boss, planning_assistant], PROBLEM, {"config_list": config_list})
