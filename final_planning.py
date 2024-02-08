@@ -133,30 +133,36 @@ def ask_planner(message):
     # return the last message received from the planner
     return planner_user.last_message()["content"]
 
+# planning_assistant = autogen.AssistantAgent(
+#     name="planning_assistant",
+#     llm_config={
+#         "temperature": 0,
+#         "timeout": 600,
+#         "cache_seed": 42,
+#         "config_list": config_list,
+#         "functions": [
+#             {
+#                 "name": "ask_planner",
+#                 "description": "ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.",
+#                 "parameters": {
+#                     "type": "object",
+#                     "properties": {
+#                         "message": {
+#                             "type": "string",
+#                             "description": "question to ask planner. Make sure the question include enough context, such as the code and the execution result. The planner does not know the conversation between you and the user, unless you share the conversation with the planner.",
+#                         },
+#                     },
+#                     "required": ["message"],
+#                 },
+#             },       
+#         ],
+#     },
+# )
+
 planning_assistant = autogen.AssistantAgent(
-    name="assistant",
-    llm_config={
-        "temperature": 0,
-        "timeout": 600,
-        "cache_seed": 42,
-        "config_list": config_list,
-        "functions": [
-            {
-                "name": "ask_planner",
-                "description": "ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "message": {
-                            "type": "string",
-                            "description": "question to ask planner. Make sure the question include enough context, such as the code and the execution result. The planner does not know the conversation between you and the user, unless you share the conversation with the planner.",
-                        },
-                    },
-                    "required": ["message"],
-                },
-            },       
-        ],
-    },
+    name="planning_assistant",
+    system_message="Assistant who has extra planning power for solving difficult problems and tackle it step by step with logical reasoning.",
+    llm_config={"timeout": 600, "cache_seed": 42, "config_list": config_list},
 )
 
 boss = RetrieveUserProxyAgent(
