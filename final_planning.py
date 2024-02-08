@@ -58,14 +58,14 @@ writer = autogen.AssistantAgent(
     name="writer",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
-    system_message="You are a helpful AI assistant. Your responsible for crafting compelling narratives and dialogue."
+    system_message="You are a helpful movie writer. Your responsible for crafting compelling narratives and dialogue."
 )
 
 director = autogen.AssistantAgent(
     name="director",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
-    system_message="You are a helpful AI assistant. You oversees the creative vision and ensures cohesion in storytelling."
+    system_message="You are a helpful movie director. You oversees the creative vision and ensures cohesion in storytelling."
 )
 
 planner = autogen.AssistantAgent(
