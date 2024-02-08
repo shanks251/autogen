@@ -1,10 +1,13 @@
 import os
-from typing import Literal
-from pydantic import BaseModel
-from typing_extensions import Annotated
-
 import chromadb
 import autogen
+from autogen import AssistantAgent
+from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
+from autogen.agentchat.contrib.agent_builder import AgentBuilder
+from typing import Literal
+from pydantic import BaseModel, Field
+from typing_extensions import Annotated
+
 
 config_file_or_env = "/content/drive/MyDrive/OAI_CONFIG_LIST"
 config_list = autogen.config_list_from_json(
@@ -20,6 +23,18 @@ config_list = autogen.config_list_from_json(
         },
     },
 )
+
+llm_config = {
+    "timeout": 60,
+    "cache_seed": 42,
+    "config_list": config_list,
+    "temperature": 0,
+}
+
+def termination_msg(x):
+    return isinstance(x, dict) and "TERMINATE" == str(x.get("content", ""))[-9:].upper()
+
+print("LLM models: ", [config_list[i]["model"] for i in range(len(config_list))])
 
 # Reset agents
 def reset_agents(agents):
@@ -39,8 +54,9 @@ def start_chat(agents, problem, llm_config):
 PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
 
 # Define agents
-boss = autogen.RetrieveUserProxyAgent(
+boss = RetrieveUserProxyAgent(
     name="Boss",
+    is_termination_msg=termination_msg,
     system_message="Assistant who has extra content retrieval power for solving difficult problems.",
     human_input_mode="NEVER",
     max_consecutive_auto_reply=10,
@@ -58,7 +74,7 @@ boss = autogen.RetrieveUserProxyAgent(
         "collection_name": "groupchat",
         "get_or_create": True,
     },
-    code_execution_config=False,  # we don't want to execute code in this case.,
+    code_execution_config=False,  # we don't want to execute code in this case.
 )
 
 currency_aid = autogen.AssistantAgent(
