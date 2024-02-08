@@ -189,16 +189,12 @@ def _reset_agents():
     planner_user.reset()
     assistant.reset()
     pm.reset()
-    hm.reset()
-    fm.reset()
     writer.reset()
-    director.reset()
-
 
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, currency_aid, assistant], messages=[], max_round=20, 
+        agents=[boss, currency_aid, pm, writer], messages=[], max_round=20, 
         speaker_selection_method="auto",  allow_repeat_speaker=False)
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
