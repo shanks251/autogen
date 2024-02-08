@@ -54,33 +54,26 @@ def start_chat(agents, problem, llm_config):
 PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
 
 # Define agents
-boss = RetrieveUserProxyAgent(
-    name="Boss",
-    is_termination_msg=termination_msg,
-    system_message="Assistant who has extra content retrieval power for solving difficult problems.",
-    human_input_mode="NEVER",
-    max_consecutive_auto_reply=10,
-    retrieve_config={
-        "task": "code",
-        "docs_path": [
-            "/content/drive/MyDrive/sample_doc/sample_1.pdf",
-            "/content/drive/MyDrive/sample_doc/sample_2.pdf",
-            "/content/drive/MyDrive/sample_doc/sample_3.pdf"
-        ],
-        "chunk_token_size": 500,
-        "max_tokens":1000,
-        "model": config_list[0]["model"],
-        "client": chromadb.PersistentClient(path="/tmp/chromadb"),
-        "collection_name": "groupchat",
-        "get_or_create": True,
-    },
-    code_execution_config=False,  # we don't want to execute code in this case.
-)
 
 currency_aid = autogen.AssistantAgent(
     name="currency_assistant",
     system_message="Suggest currency of given countries and convert it. For currency conversion tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
-    llm_config={"timeout": 60, "cache_seed": 42, "config_list": config_list, "temperature": 0},
+    llm_config={"timeout": 60, "cache_seed": 42, "config_list": config_list, "temperature": 0,
+                "functions":[
+                    {
+                        'description': 'Currency exchange calculator.', 
+                        'name': 'currency_calculator', 
+                        'parameters': {
+                            'type': 'object', 
+                            'properties': {
+                                'base_amount': {'type': 'number', 'description': 'Amount of currency in base_currency'}, 
+                                'base_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'USD', 'description': 'Base currency'}, 
+                                'quote_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'EUR', 'description': 'Quote currency'}}, 
+                            'required': ['base_amount']}
+                    }
+                ]
+                },
+    
 )
 
 # planning_assistant = autogen.AssistantAgent(
@@ -129,9 +122,22 @@ planning_assistant = autogen.AssistantAgent(
                     "required": ["message"],
                 },
             },
+            {
+                'description': 'Currency exchange calculator.', 
+                'name': 'currency_calculator', 
+                'parameters': {
+                    'type': 'object', 
+                    'properties': {
+                        'base_amount': {'type': 'number', 'description': 'Amount of currency in base_currency'}, 
+                        'base_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'USD', 'description': 'Base currency'}, 
+                        'quote_currency': {'enum': ['USD', 'EUR'], 'type': 'string', 'default': 'EUR', 'description': 'Quote currency'}}, 
+                    'required': ['base_amount']}
+            }
+            
         ],
     },
 )
+
 
 writer = autogen.AssistantAgent(
     name="writer",
@@ -154,8 +160,8 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
         raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
 # Define currency calculator function
-@boss.register_for_execution()
-@currency_aid.register_for_llm(description="Currency exchange calculator.")
+# @boss.register_for_execution()
+# @currency_aid.register_for_llm(description="Currency exchange calculator.")
 def currency_calculator(
     base_amount: Annotated[float, "Amount of currency in base_currency"],
     base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
@@ -164,9 +170,33 @@ def currency_calculator(
     quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
     return f"{quote_amount} {quote_currency}"
 
+boss = RetrieveUserProxyAgent(
+    name="Boss",
+    is_termination_msg=termination_msg,
+    system_message="Assistant who has extra content retrieval power for solving difficult problems.",
+    human_input_mode="NEVER",
+    max_consecutive_auto_reply=10,
+    retrieve_config={
+        "task": "code",
+        "docs_path": [
+            "/content/drive/MyDrive/sample_doc/sample_1.pdf",
+            "/content/drive/MyDrive/sample_doc/sample_2.pdf",
+            "/content/drive/MyDrive/sample_doc/sample_3.pdf"
+        ],
+        "chunk_token_size": 500,
+        "max_tokens":1000,
+        "model": config_list[0]["model"],
+        "client": chromadb.PersistentClient(path="/tmp/chromadb"),
+        "collection_name": "groupchat",
+        "get_or_create": True,
+    },
+    code_execution_config=False,  # we don't want to execute code in this case.
+    function_map={"currency_calculator": currency_calculator}
+)
+
 
 print("********printing agent tool********")
-print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
+# print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
 
 # Start the chat
-# start_chat([boss, currency_aid , writer], PROBLEM, {"config_list": config_list})
+start_chat([boss, currency_aid , writer], PROBLEM, {"config_list": config_list})
