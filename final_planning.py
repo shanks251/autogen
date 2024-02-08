@@ -37,35 +37,35 @@ pm = autogen.AssistantAgent(
     name="prime_minister",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
-    system_message="Responsible for overseeing the overall direction and priorities of the policy."
+    system_message="You are the Prime Miniter of a country. Your responsible for overseeing the overall direction and priorities of the policy."
 )
 
 hm = autogen.AssistantAgent(
     name="home_minister",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
-    system_message="Tasked with addressing domestic concerns and ensuring the policy aligns with internal needs and regulations."
+    system_message="You are the Home Minister of a country. Your tasked with addressing domestic concerns and ensuring the policy aligns with internal needs and regulations."
 )
 
 fm = autogen.AssistantAgent(
     name="foreign_minister",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
-    system_message="Focused on international relations and ensuring the policy aligns with our global objectives and commitments."
+    system_message="You are the Foreign Minister of a country. You are focused on international relations and ensuring the policy aligns with our global objectives and commitments."
 )
 
 writer = autogen.AssistantAgent(
     name="writer",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
-    system_message="You are a helpful movie writer. Your responsible for crafting compelling narratives and dialogue."
+    system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue."
 )
 
 director = autogen.AssistantAgent(
     name="director",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
-    system_message="You are a helpful movie director. You oversees the creative vision and ensures cohesion in storytelling."
+    system_message="You are a movie director. You oversees the creative vision and ensures cohesion in storytelling."
 )
 
 planner = autogen.AssistantAgent(
