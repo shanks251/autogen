@@ -143,6 +143,7 @@ boss = RetrieveUserProxyAgent(
         "get_or_create": True,
     },
     code_execution_config=False,  # we don't want to execute code in this case.
+    function_map={"ask_planner": ask_planner},
 )
 
 currency_aid = autogen.AssistantAgent(
