@@ -34,24 +34,38 @@ llm_config = {
 print("LLM models: ", [config_list[i]["model"] for i in range(len(config_list))])
 
 pm = autogen.AssistantAgent(
-    name="Prime Minister",
+    name="prime_minister",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
     system_message="Responsible for overseeing the overall direction and priorities of the policy."
 )
 
 hm = autogen.AssistantAgent(
-    name="Home Minister",
+    name="home_minister",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
     system_message="Tasked with addressing domestic concerns and ensuring the policy aligns with internal needs and regulations."
 )
 
 fm = autogen.AssistantAgent(
-    name="Foreign Minister",
+    name="foreign_minister",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
     system_message="Focused on international relations and ensuring the policy aligns with our global objectives and commitments."
+)
+
+writer = autogen.AssistantAgent(
+    name="writer",
+    llm_config={"config_list": config_list},
+    # the default system message of the AssistantAgent is overwritten here
+    system_message="You are a helpful AI assistant. Your responsible for crafting compelling narratives and dialogue."
+)
+
+director = autogen.AssistantAgent(
+    name="director",
+    llm_config={"config_list": config_list},
+    # the default system message of the AssistantAgent is overwritten here
+    system_message="You are a helpful AI assistant. You oversees the creative vision and ensures cohesion in storytelling."
 )
 
 planner = autogen.AssistantAgent(
@@ -176,12 +190,14 @@ def _reset_agents():
     pm.reset()
     hm.reset()
     fm.reset()
+    writer.reset()
+    director.reset()
 
 
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, currency_aid, assistant, pm, hm, fm], messages=[], max_round=20, 
+        agents=[boss, currency_aid, assistant, director, writer], messages=[], max_round=20, 
         speaker_selection_method="auto",  allow_repeat_speaker=False)
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
