@@ -98,7 +98,7 @@ planning_assistant = autogen.AssistantAgent(
         "timeout": 600,
         "cache_seed": 42,
         "config_list": config_list,
-        "functions": [
+        "tools": [
             {
                 "name": "ask_planner",
                 "description": "ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.",
