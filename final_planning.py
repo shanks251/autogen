@@ -71,30 +71,6 @@ print("LLM models: ", [config_list[i]["model"] for i in range(len(config_list))]
 #     system_message="You are a movie director. You oversees the creative vision and ensures cohesion in storytelling."
 # )
 
-boss = RetrieveUserProxyAgent(
-    name="Boss",
-    is_termination_msg=termination_msg,
-    system_message="Assistant who has extra content retrieval power for solving difficult problems.",
-    human_input_mode="NEVER",
-    max_consecutive_auto_reply=10,
-    retrieve_config={
-        "task": "code",
-        "docs_path": [
-            "/content/drive/MyDrive/sample_doc/sample_1.pdf",
-            "/content/drive/MyDrive/sample_doc/sample_2.pdf",
-            "/content/drive/MyDrive/sample_doc/sample_3.pdf"
-        ],
-        "chunk_token_size": 500,
-        "max_tokens":1000,
-        "model": config_list[0]["model"],
-        "client": chromadb.PersistentClient(path="/tmp/chromadb"),
-        "collection_name": "groupchat",
-        "get_or_create": True,
-    },
-    code_execution_config=False,  # we don't want to execute code in this case.
-    # function_map={"ask_planner": ask_planner},
-)
-
 planner = autogen.AssistantAgent(
     name="planner",
     llm_config={"config_list": config_list},
@@ -107,7 +83,6 @@ planner_user = autogen.UserProxyAgent(
     human_input_mode="NEVER",
 )
 
-@boss.register_for_execution()
 def ask_planner(message):
     planner_user.initiate_chat(planner, message=message)
     # return the last message received from the planner
@@ -142,9 +117,6 @@ planning_assistant = autogen.AssistantAgent(
     }
 )
 
-
-PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
-
 currency_aid = autogen.AssistantAgent(
     name="currency_assistant",
     system_message="Suggest currency of given countries and convert it. For currency conversion tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
@@ -165,7 +137,7 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
         raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
 
-@boss.register_for_execution()
+# @boss.register_for_execution()
 @currency_aid.register_for_llm(description="Currency exchange calculator.")
 def currency_calculator(
     base_amount: Annotated[float, "Amount of currency in base_currency"],
@@ -175,10 +147,39 @@ def currency_calculator(
     quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
     return f"{quote_amount} {quote_currency}"
 
+boss = RetrieveUserProxyAgent(
+    name="Boss",
+    is_termination_msg=termination_msg,
+    system_message="Assistant who has extra content retrieval power for solving difficult problems.",
+    human_input_mode="NEVER",
+    max_consecutive_auto_reply=10,
+    retrieve_config={
+        "task": "code",
+        "docs_path": [
+            "/content/drive/MyDrive/sample_doc/sample_1.pdf",
+            "/content/drive/MyDrive/sample_doc/sample_2.pdf",
+            "/content/drive/MyDrive/sample_doc/sample_3.pdf"
+        ],
+        "chunk_token_size": 500,
+        "max_tokens":1000,
+        "model": config_list[0]["model"],
+        "client": chromadb.PersistentClient(path="/tmp/chromadb"),
+        "collection_name": "groupchat",
+        "get_or_create": True,
+    },
+    code_execution_config=False,  # we don't want to execute code in this case.
+    function_map={"ask_planner": ask_planner, "currency_calculator": currency_calculator},
+)
+
+
+
+PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
+
 
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
-print(f"planning_assistant.function_map: {planning_assistant.function_map}")
+print(f"{planning_assistant.name}_tools_function: ,{planning_assistant.llm_config['tools'][0]['function']}")
+print(f"boss.function_map: {boss.function_map}")
 print("********printing agent tool done********")
 
 
