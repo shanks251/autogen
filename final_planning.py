@@ -137,7 +137,7 @@ writer = autogen.AssistantAgent(
     name="writer",
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
-    system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue."
+    system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue for given movies description."
 )
 
 CurrencySymbol = Literal["USD", "EUR"]
@@ -164,5 +164,9 @@ def currency_calculator(
     quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
     return f"{quote_amount} {quote_currency}"
 
+
+print("********printing agent tool********")
+print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
+
 # Start the chat
-start_chat([boss, currency_aid , writer], PROBLEM, {"config_list": config_list})
+# start_chat([boss, currency_aid , writer], PROBLEM, {"config_list": config_list})
