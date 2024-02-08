@@ -199,4 +199,4 @@ print("********printing agent tool********")
 # print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
 
 # Start the chat
-start_chat([boss, currency_aid , writer], PROBLEM, {"config_list": config_list})
+start_chat([boss, currency_aid], PROBLEM, {"config_list": config_list})
