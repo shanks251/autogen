@@ -31,41 +31,68 @@ llm_config = {
     "temperature": 0,
 }
 
+def termination_msg(x):
+    return isinstance(x, dict) and "TERMINATE" == str(x.get("content", ""))[-9:].upper()
+
 print("LLM models: ", [config_list[i]["model"] for i in range(len(config_list))])
 
-pm = autogen.AssistantAgent(
-    name="prime_minister",
-    llm_config={"config_list": config_list},
-    # the default system message of the AssistantAgent is overwritten here
-    system_message="You are the Prime Miniter of a country. Your responsible for overseeing the overall direction and priorities of the policy."
-)
+# pm = autogen.AssistantAgent(
+#     name="prime_minister",
+#     llm_config={"config_list": config_list},
+#     # the default system message of the AssistantAgent is overwritten here
+#     system_message="You are the Prime Miniter of a country. Your responsible for overseeing the overall direction and priorities of the policy."
+# )
 
-hm = autogen.AssistantAgent(
-    name="home_minister",
-    llm_config={"config_list": config_list},
-    # the default system message of the AssistantAgent is overwritten here
-    system_message="You are the Home Minister of a country. Your tasked with addressing domestic concerns and ensuring the policy aligns with internal needs and regulations."
-)
+# hm = autogen.AssistantAgent(
+#     name="home_minister",
+#     llm_config={"config_list": config_list},
+#     # the default system message of the AssistantAgent is overwritten here
+#     system_message="You are the Home Minister of a country. Your tasked with addressing domestic concerns and ensuring the policy aligns with internal needs and regulations."
+# )
 
-fm = autogen.AssistantAgent(
-    name="foreign_minister",
-    llm_config={"config_list": config_list},
-    # the default system message of the AssistantAgent is overwritten here
-    system_message="You are the Foreign Minister of a country. You are focused on international relations and ensuring the policy aligns with our global objectives and commitments."
-)
+# fm = autogen.AssistantAgent(
+#     name="foreign_minister",
+#     llm_config={"config_list": config_list},
+#     # the default system message of the AssistantAgent is overwritten here
+#     system_message="You are the Foreign Minister of a country. You are focused on international relations and ensuring the policy aligns with our global objectives and commitments."
+# )
 
-writer = autogen.AssistantAgent(
-    name="writer",
-    llm_config={"config_list": config_list},
-    # the default system message of the AssistantAgent is overwritten here
-    system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue."
-)
+# writer = autogen.AssistantAgent(
+#     name="writer",
+#     llm_config={"config_list": config_list},
+#     # the default system message of the AssistantAgent is overwritten here
+#     system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue."
+# )
 
-director = autogen.AssistantAgent(
-    name="director",
-    llm_config={"config_list": config_list},
-    # the default system message of the AssistantAgent is overwritten here
-    system_message="You are a movie director. You oversees the creative vision and ensures cohesion in storytelling."
+# director = autogen.AssistantAgent(
+#     name="director",
+#     llm_config={"config_list": config_list},
+#     # the default system message of the AssistantAgent is overwritten here
+#     system_message="You are a movie director. You oversees the creative vision and ensures cohesion in storytelling."
+# )
+
+boss = RetrieveUserProxyAgent(
+    name="Boss",
+    is_termination_msg=termination_msg,
+    system_message="Assistant who has extra content retrieval power for solving difficult problems.",
+    human_input_mode="NEVER",
+    max_consecutive_auto_reply=10,
+    retrieve_config={
+        "task": "code",
+        "docs_path": [
+            "/content/drive/MyDrive/sample_doc/sample_1.pdf",
+            "/content/drive/MyDrive/sample_doc/sample_2.pdf",
+            "/content/drive/MyDrive/sample_doc/sample_3.pdf"
+        ],
+        "chunk_token_size": 500,
+        "max_tokens":1000,
+        "model": config_list[0]["model"],
+        "client": chromadb.PersistentClient(path="/tmp/chromadb"),
+        "collection_name": "groupchat",
+        "get_or_create": True,
+    },
+    code_execution_config=False,  # we don't want to execute code in this case.
+    # function_map={"ask_planner": ask_planner},
 )
 
 planner = autogen.AssistantAgent(
@@ -80,16 +107,17 @@ planner_user = autogen.UserProxyAgent(
     human_input_mode="NEVER",
 )
 
+@boss.register_for_execution()
 def ask_planner(message):
     planner_user.initiate_chat(planner, message=message)
     # return the last message received from the planner
     return planner_user.last_message()["content"]
 
 
-
 # create an AssistantAgent instance named "assistant"
-assistant = autogen.AssistantAgent(
-    name="assistant",
+planning_assistant = autogen.AssistantAgent(
+    name="planning_assistant",
+    system_message="Assistant who has extra planning power for solving difficult problems.",
     llm_config={
         "temperature": 0,
         "timeout": 600,
@@ -115,35 +143,7 @@ assistant = autogen.AssistantAgent(
 )
 
 
-def termination_msg(x):
-    return isinstance(x, dict) and "TERMINATE" == str(x.get("content", ""))[-9:].upper()
-
-
 PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
-
-
-boss = RetrieveUserProxyAgent(
-    name="Boss",
-    is_termination_msg=termination_msg,
-    system_message="Assistant who has extra content retrieval power for solving difficult problems.",
-    human_input_mode="NEVER",
-    max_consecutive_auto_reply=10,
-    retrieve_config={
-        "task": "code",
-        "docs_path": [
-            "/content/drive/MyDrive/sample_doc/sample_1.pdf",
-            "/content/drive/MyDrive/sample_doc/sample_2.pdf",
-            "/content/drive/MyDrive/sample_doc/sample_3.pdf"
-        ],
-        "chunk_token_size": 500,
-        "max_tokens":1000,
-        "model": config_list[0]["model"],
-        "client": chromadb.PersistentClient(path="/tmp/chromadb"),
-        "collection_name": "groupchat",
-        "get_or_create": True,
-    },
-    code_execution_config=False,  # we don't want to execute code in this case.
-)
 
 currency_aid = autogen.AssistantAgent(
     name="currency_assistant",
@@ -178,6 +178,7 @@ def currency_calculator(
 
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
+print(f"planning_assistant.function_map: {planning_assistant.function_map}")
 print("********printing agent tool done********")
 
 
@@ -186,14 +187,14 @@ def _reset_agents():
     currency_aid.reset()
     planner.reset()
     planner_user.reset()
-    assistant.reset()
-    pm.reset()
-    writer.reset()
+    planning_assistant.reset()
+    # pm.reset()
+    # writer.reset()
 
 def rag_chat():
     _reset_agents()
     groupchat = autogen.GroupChat(
-        agents=[boss, currency_aid, pm, writer], messages=[], max_round=20, 
+        agents=[boss, currency_aid, planning_assistant], messages=[], max_round=20, 
         speaker_selection_method="auto",  allow_repeat_speaker=False)
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
 
