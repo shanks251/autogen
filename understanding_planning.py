@@ -1,11 +1,17 @@
+import os
+import chromadb
 import autogen
+from autogen import AssistantAgent
+from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
+from autogen.agentchat.contrib.agent_builder import AgentBuilder
 from typing import Literal
-
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated
 
+
+config_file_or_env = "/content/drive/MyDrive/OAI_CONFIG_LIST"
 config_list = autogen.config_list_from_json(
-    "/content/drive/MyDrive/OAI_CONFIG_LIST",
+    config_file_or_env,
     filter_dict={
         "model": {
             "gpt-3.5-turbo",
@@ -13,15 +19,57 @@ config_list = autogen.config_list_from_json(
             "gpt-3.5-turbo-0301",
             "chatgpt-35-turbo-0301",
             "gpt-35-turbo-v0301",
+            "gpt-4", "gpt4", "gpt-4-32k"
         },
     },
 )
 
+llm_config = {
+    "timeout": 60,
+    "cache_seed": 42,
+    "config_list": config_list,
+    "temperature": 0,
+}
 
-llm_config = {"config_list": config_list, 
-              "cache_seed": 42,
-              "timeout": 120}
+def termination_msg(x):
+    return isinstance(x, dict) and "TERMINATE" == str(x.get("content", ""))[-9:].upper()
 
+print("LLM models: ", [config_list[i]["model"] for i in range(len(config_list))])
+
+# pm = autogen.AssistantAgent(
+#     name="prime_minister",
+#     llm_config={"config_list": config_list},
+#     # the default system message of the AssistantAgent is overwritten here
+#     system_message="You are the Prime Miniter of a country. Your responsible for overseeing the overall direction and priorities of the policy."
+# )
+
+# hm = autogen.AssistantAgent(
+#     name="home_minister",
+#     llm_config={"config_list": config_list},
+#     # the default system message of the AssistantAgent is overwritten here
+#     system_message="You are the Home Minister of a country. Your tasked with addressing domestic concerns and ensuring the policy aligns with internal needs and regulations."
+# )
+
+# fm = autogen.AssistantAgent(
+#     name="foreign_minister",
+#     llm_config={"config_list": config_list},
+#     # the default system message of the AssistantAgent is overwritten here
+#     system_message="You are the Foreign Minister of a country. You are focused on international relations and ensuring the policy aligns with our global objectives and commitments."
+# )
+
+# writer = autogen.AssistantAgent(
+#     name="writer",
+#     llm_config={"config_list": config_list},
+#     # the default system message of the AssistantAgent is overwritten here
+#     system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue."
+# )
+
+# director = autogen.AssistantAgent(
+#     name="director",
+#     llm_config={"config_list": config_list},
+#     # the default system message of the AssistantAgent is overwritten here
+#     system_message="You are a movie director. You oversees the creative vision and ensures cohesion in storytelling."
+# )
 
 planner = autogen.AssistantAgent(
     name="planner",
@@ -35,8 +83,6 @@ planner_user = autogen.UserProxyAgent(
     human_input_mode="NEVER",
 )
 
-# @user_proxy.register_for_execution()
-# @assistant.register_for_llm(description="ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.")
 def ask_planner(message):
     planner_user.initiate_chat(planner, message=message)
     # return the last message received from the planner
@@ -44,14 +90,15 @@ def ask_planner(message):
 
 
 # create an AssistantAgent instance named "assistant"
-assistant = autogen.AssistantAgent(
-    name="assistant",
+planning_assistant = autogen.AssistantAgent(
+    name="planning_assistant",
+    system_message="Assistant who has extra planning power for solving difficult problems.",
     llm_config={
         "temperature": 0,
         "timeout": 600,
         "cache_seed": 42,
         "config_list": config_list,
-        "functions": [
+        "tools": [
             {
                 "name": "ask_planner",
                 "description": "ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.",
@@ -70,17 +117,12 @@ assistant = autogen.AssistantAgent(
     }
 )
 
-# create a UserProxyAgent instance named "user_proxy"
-user_proxy = autogen.UserProxyAgent(
-    name="user_proxy",
-    human_input_mode="TERMINATE",
-    max_consecutive_auto_reply=10,
-    # is_termination_msg=lambda x: "content" in x and x["content"] is not None and x["content"].rstrip().endswith("TERMINATE"),
-    code_execution_config={"work_dir": "planning"},
-    function_map={"ask_planner": ask_planner},
+currency_aid = autogen.AssistantAgent(
+    name="currency_assistant",
+    system_message="Suggest currency of given countries and convert it. For currency conversion tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
+    llm_config=llm_config,
 )
-
-
+    
 CurrencySymbol = Literal["USD", "EUR"]
 
 
@@ -94,8 +136,9 @@ def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol)
     else:
         raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
-@user_proxy.register_for_execution()
-@assistant.register_for_llm(description="Currency exchange calculator.")
+
+# @boss.register_for_execution()
+@currency_aid.register_for_llm(description="Currency exchange calculator.")
 def currency_calculator(
     base_amount: Annotated[float, "Amount of currency in base_currency"],
     base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
@@ -104,11 +147,64 @@ def currency_calculator(
     quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
     return f"{quote_amount} {quote_currency}"
 
-print("user_proxy.function_map",user_proxy.function_map)
-print("assistant.llm_config['tools'][0]['function']",assistant.llm_config['tools'][0]['function'])
-print()
-# the assistant receives a message from the user, which contains the task description
-user_proxy.initiate_chat(
-    assistant,
-    message="How much is 123.45 USD in EUR?",
+boss = RetrieveUserProxyAgent(
+    name="Boss",
+    is_termination_msg=termination_msg,
+    system_message="Assistant who has extra content retrieval power for solving difficult problems.",
+    human_input_mode="NEVER",
+    max_consecutive_auto_reply=10,
+    retrieve_config={
+        "task": "code",
+        "docs_path": [
+            "/content/drive/MyDrive/sample_doc/sample_1.pdf",
+            "/content/drive/MyDrive/sample_doc/sample_2.pdf",
+            "/content/drive/MyDrive/sample_doc/sample_3.pdf"
+        ],
+        "chunk_token_size": 500,
+        "max_tokens":1000,
+        "model": config_list[0]["model"],
+        "client": chromadb.PersistentClient(path="/tmp/chromadb"),
+        "collection_name": "groupchat",
+        "get_or_create": True,
+    },
+    code_execution_config=False,  # we don't want to execute code in this case.
+    function_map={"ask_planner": ask_planner, "currency_calculator": currency_calculator},
 )
+
+
+
+PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
+
+
+print("********printing agent tool********")
+print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
+# print(f"{planning_assistant.name}_tools_function: ,{planning_assistant.llm_config['tools'][0]['function']}")
+print(f"boss.function_map: {boss.function_map}")
+print("********printing agent tool done********")
+
+
+def _reset_agents():
+    boss.reset()
+    currency_aid.reset()
+    planner.reset()
+    planner_user.reset()
+    planning_assistant.reset()
+    # pm.reset()
+    # writer.reset()
+
+def rag_chat():
+    _reset_agents()
+    groupchat = autogen.GroupChat(
+        agents=[boss, currency_aid, planning_assistant], messages=[], max_round=20, 
+        speaker_selection_method="auto",  allow_repeat_speaker=False)
+    manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
+
+    # Start chatting with boss_aid as this is the user proxy agent.
+    boss.initiate_chat(
+        manager,
+        problem=PROBLEM,
+        # search_string="GDP",
+        n_results=1,
+    )
+  
+rag_chat()

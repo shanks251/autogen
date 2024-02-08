@@ -1,13 +1,10 @@
 import os
-import chromadb
-import autogen
-from autogen import AssistantAgent
-from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
-from autogen.agentchat.contrib.agent_builder import AgentBuilder
 from typing import Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from typing_extensions import Annotated
 
+import chromadb
+import autogen
 
 config_file_or_env = "/content/drive/MyDrive/OAI_CONFIG_LIST"
 config_list = autogen.config_list_from_json(
@@ -24,132 +21,26 @@ config_list = autogen.config_list_from_json(
     },
 )
 
-llm_config = {
-    "timeout": 60,
-    "cache_seed": 42,
-    "config_list": config_list,
-    "temperature": 0,
-}
+# Reset agents
+def reset_agents(agents):
+    for agent in agents:
+        agent.reset()
 
-def termination_msg(x):
-    return isinstance(x, dict) and "TERMINATE" == str(x.get("content", ""))[-9:].upper()
+# Start chat function
+def start_chat(agents, problem, llm_config):
+    reset_agents(agents)
+    groupchat = autogen.GroupChat(
+        agents=agents, messages=[], max_round=20, 
+        speaker_selection_method="auto",  allow_repeat_speaker=False)
+    manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
+    agents[0].initiate_chat(manager, problem=problem, n_results=1)
 
-print("LLM models: ", [config_list[i]["model"] for i in range(len(config_list))])
+# Define the problem statement
+PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
 
-# pm = autogen.AssistantAgent(
-#     name="prime_minister",
-#     llm_config={"config_list": config_list},
-#     # the default system message of the AssistantAgent is overwritten here
-#     system_message="You are the Prime Miniter of a country. Your responsible for overseeing the overall direction and priorities of the policy."
-# )
-
-# hm = autogen.AssistantAgent(
-#     name="home_minister",
-#     llm_config={"config_list": config_list},
-#     # the default system message of the AssistantAgent is overwritten here
-#     system_message="You are the Home Minister of a country. Your tasked with addressing domestic concerns and ensuring the policy aligns with internal needs and regulations."
-# )
-
-# fm = autogen.AssistantAgent(
-#     name="foreign_minister",
-#     llm_config={"config_list": config_list},
-#     # the default system message of the AssistantAgent is overwritten here
-#     system_message="You are the Foreign Minister of a country. You are focused on international relations and ensuring the policy aligns with our global objectives and commitments."
-# )
-
-# writer = autogen.AssistantAgent(
-#     name="writer",
-#     llm_config={"config_list": config_list},
-#     # the default system message of the AssistantAgent is overwritten here
-#     system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue."
-# )
-
-# director = autogen.AssistantAgent(
-#     name="director",
-#     llm_config={"config_list": config_list},
-#     # the default system message of the AssistantAgent is overwritten here
-#     system_message="You are a movie director. You oversees the creative vision and ensures cohesion in storytelling."
-# )
-
-planner = autogen.AssistantAgent(
-    name="planner",
-    llm_config={"config_list": config_list},
-    # the default system message of the AssistantAgent is overwritten here
-    system_message="You are a helpful AI assistant. You suggest coding and reasoning steps for another AI assistant to accomplish a task. Do not suggest concrete code. For any action beyond writing code or reasoning, convert it to a step that can be implemented by writing code. For example, browsing the web can be implemented by writing code that reads and prints the content of a web page. Finally, inspect the execution result. If the plan is not good, suggest a better plan. If the execution is wrong, analyze the error and suggest a fix."
-)
-planner_user = autogen.UserProxyAgent(
-    name="planner_user",
-    max_consecutive_auto_reply=0,  # terminate without auto-reply
-    human_input_mode="NEVER",
-)
-
-def ask_planner(message):
-    planner_user.initiate_chat(planner, message=message)
-    # return the last message received from the planner
-    return planner_user.last_message()["content"]
-
-
-# create an AssistantAgent instance named "assistant"
-planning_assistant = autogen.AssistantAgent(
-    name="planning_assistant",
-    system_message="Assistant who has extra planning power for solving difficult problems.",
-    llm_config={
-        "temperature": 0,
-        "timeout": 600,
-        "cache_seed": 42,
-        "config_list": config_list,
-        "tools": [
-            {
-                "name": "ask_planner",
-                "description": "ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "message": {
-                            "type": "string",
-                            "description": "question to ask planner. Make sure the question include enough context, such as the code and the execution result. The planner does not know the conversation between you and the user, unless you share the conversation with the planner.",
-                        },
-                    },
-                    "required": ["message"],
-                },
-            },
-        ],
-    }
-)
-
-currency_aid = autogen.AssistantAgent(
-    name="currency_assistant",
-    system_message="Suggest currency of given countries and convert it. For currency conversion tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
-    llm_config=llm_config,
-)
-    
-CurrencySymbol = Literal["USD", "EUR"]
-
-
-def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol) -> float:
-    if base_currency == quote_currency:
-        return 1.0
-    elif base_currency == "USD" and quote_currency == "EUR":
-        return 1 / 1.1
-    elif base_currency == "EUR" and quote_currency == "USD":
-        return 1.1
-    else:
-        raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
-
-
-# @boss.register_for_execution()
-@currency_aid.register_for_llm(description="Currency exchange calculator.")
-def currency_calculator(
-    base_amount: Annotated[float, "Amount of currency in base_currency"],
-    base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
-    quote_currency: Annotated[CurrencySymbol, "Quote currency"] = "EUR",
-) -> str:
-    quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
-    return f"{quote_amount} {quote_currency}"
-
-boss = RetrieveUserProxyAgent(
+# Define agents
+boss = autogen.RetrieveUserProxyAgent(
     name="Boss",
-    is_termination_msg=termination_msg,
     system_message="Assistant who has extra content retrieval power for solving difficult problems.",
     human_input_mode="NEVER",
     max_consecutive_auto_reply=10,
@@ -167,44 +58,44 @@ boss = RetrieveUserProxyAgent(
         "collection_name": "groupchat",
         "get_or_create": True,
     },
-    code_execution_config=False,  # we don't want to execute code in this case.
-    function_map={"ask_planner": ask_planner, "currency_calculator": currency_calculator},
+    code_execution_config=False,  # we don't want to execute code in this case.,
 )
 
+currency_aid = autogen.AssistantAgent(
+    name="currency_assistant",
+    system_message="Suggest currency of given countries and convert it. For currency conversion tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
+    llm_config={"timeout": 60, "cache_seed": 42, "config_list": config_list, "temperature": 0},
+)
+
+planning_assistant = autogen.AssistantAgent(
+    name="planning_assistant",
+    system_message="Assistant who has extra planning power for solving difficult problems.",
+    llm_config={"timeout": 600, "cache_seed": 42, "config_list": config_list},
+)
+
+CurrencySymbol = Literal["USD", "EUR"]
 
 
-PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
+def exchange_rate(base_currency: CurrencySymbol, quote_currency: CurrencySymbol) -> float:
+    if base_currency == quote_currency:
+        return 1.0
+    elif base_currency == "USD" and quote_currency == "EUR":
+        return 1 / 1.1
+    elif base_currency == "EUR" and quote_currency == "USD":
+        return 1.1
+    else:
+        raise ValueError(f"Unknown currencies {base_currency}, {quote_currency}")
 
+# Define currency calculator function
+@boss.register_for_execution()
+@currency_aid.register_for_llm(description="Currency exchange calculator.")
+def currency_calculator(
+    base_amount: Annotated[float, "Amount of currency in base_currency"],
+    base_currency: Annotated[CurrencySymbol, "Base currency"] = "USD",
+    quote_currency: Annotated[CurrencySymbol, "Quote currency"] = "EUR",
+) -> str:
+    quote_amount = exchange_rate(base_currency, quote_currency) * base_amount
+    return f"{quote_amount} {quote_currency}"
 
-print("********printing agent tool********")
-print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['tools'][0]['function']}")
-# print(f"{planning_assistant.name}_tools_function: ,{planning_assistant.llm_config['tools'][0]['function']}")
-print(f"boss.function_map: {boss.function_map}")
-print("********printing agent tool done********")
-
-
-def _reset_agents():
-    boss.reset()
-    currency_aid.reset()
-    planner.reset()
-    planner_user.reset()
-    planning_assistant.reset()
-    # pm.reset()
-    # writer.reset()
-
-def rag_chat():
-    _reset_agents()
-    groupchat = autogen.GroupChat(
-        agents=[boss, currency_aid, planning_assistant], messages=[], max_round=20, 
-        speaker_selection_method="auto",  allow_repeat_speaker=False)
-    manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
-
-    # Start chatting with boss_aid as this is the user proxy agent.
-    boss.initiate_chat(
-        manager,
-        problem=PROBLEM,
-        # search_string="GDP",
-        n_results=1,
-    )
-  
-rag_chat()
+# Start the chat
+start_chat([boss, currency_aid, planning_assistant], PROBLEM, {"config_list": config_list})
