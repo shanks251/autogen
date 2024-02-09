@@ -53,7 +53,7 @@ def start_chat(agents, problem, llm_config):
     )
 
     manager_llm_config = llm_config.copy()
-    manager_llm_config.pop("functions")
+    # manager_llm_config.pop("functions")
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=manager_llm_config)
 
     # Start chatting with the boss as this is the user proxy agent.
