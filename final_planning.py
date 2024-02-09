@@ -45,10 +45,22 @@ def reset_agents(agents):
 def start_chat(agents, problem, llm_config):
     reset_agents(agents)
     groupchat = autogen.GroupChat(
-        agents=agents, messages=[], max_round=20, 
-        speaker_selection_method="auto",  allow_repeat_speaker=False)
-    manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=llm_config)
-    agents[0].initiate_chat(manager, problem=problem, n_results=1)
+        agents=agents,
+        messages=[],
+        max_round=20,
+        speaker_selection_method="auto",
+        allow_repeat_speaker=False,
+    )
+
+    manager_llm_config = llm_config.copy()
+    manager_llm_config.pop("functions")
+    manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=manager_llm_config)
+
+    # Start chatting with the boss as this is the user proxy agent.
+    boss.initiate_chat(
+        manager,
+        message=PROBLEM,
+    )
 
 # Define the problem statement
 PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
