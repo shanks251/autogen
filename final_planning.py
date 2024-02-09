@@ -133,40 +133,50 @@ def ask_planner(message):
     # return the last message received from the planner
     return planner_user.last_message()["content"]
 
-# planning_assistant = autogen.AssistantAgent(
-#     name="planning_assistant",
-#     llm_config={
-#         "temperature": 0,
-#         "timeout": 600,
-#         "cache_seed": 42,
-#         "config_list": config_list,
-#         "functions": [
-#             {
-#                 "name": "ask_planner",
-#                 "description": "ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.",
-#                 "parameters": {
-#                     "type": "object",
-#                     "properties": {
-#                         "message": {
-#                             "type": "string",
-#                             "description": "question to ask planner. Make sure the question include enough context, such as the code and the execution result. The planner does not know the conversation between you and the user, unless you share the conversation with the planner.",
-#                         },
-#                     },
-#                     "required": ["message"],
-#                 },
-#             },       
-#         ],
-#     },
-# )
-
 planning_assistant = autogen.AssistantAgent(
     name="planning_assistant",
-    system_message="Assistant who has extra planning power for solving difficult problems and tackle it step by step with logical reasoning.",
-    llm_config={"timeout": 600, "cache_seed": 42, "config_list": config_list},
+    llm_config={
+        "temperature": 0,
+        "timeout": 600,
+        "cache_seed": 42,
+        "config_list": config_list,
+        "functions": [
+            {
+                "name": "ask_planner",
+                "description": "ask planner to: 1. get a plan for finishing a task, 2. verify the execution result of the plan and potentially suggest new plan.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "description": "question to ask planner. Make sure the question include enough context, such as the code and the execution result. The planner does not know the conversation between you and the user, unless you share the conversation with the planner.",
+                        },
+                    },
+                    "required": ["message"],
+                },
+            },       
+        ],
+    },
 )
 
-boss = RetrieveUserProxyAgent(
+# planning_assistant = autogen.AssistantAgent(
+#     name="planning_assistant",
+#     system_message="Assistant who has extra planning power for solving difficult problems and tackle it step by step with logical reasoning.",
+#     llm_config={"timeout": 600, "cache_seed": 42, "config_list": config_list},
+# )
+
+boss = autogen.UserProxyAgent(
     name="Boss",
+    is_termination_msg=termination_msg,
+    human_input_mode="NEVER",
+    system_message="The boss who ask questions and give tasks.",
+    code_execution_config=False,  # we don't want to execute code in this case.
+    default_auto_reply="Reply `TERMINATE` if the task is done.",
+    function_map={"currency_calculator": currency_calculator, "ask_planner": ask_planner}
+)
+
+boss_aid = RetrieveUserProxyAgent(
+    name="Boss_assistant",
     is_termination_msg=termination_msg,
     system_message="Assistant who has extra content retrieval power for solving difficult problems.",
     human_input_mode="NEVER",
@@ -186,8 +196,53 @@ boss = RetrieveUserProxyAgent(
         "get_or_create": True,
     },
     code_execution_config=False,  # we don't want to execute code in this case.
-    function_map={"currency_calculator": currency_calculator, "ask_planner": ask_planner}
 )
+
+def retrieve_content(message, n_results=3):
+        boss_aid.n_results = n_results  # Set the number of results to be retrieved.
+        # Check if we need to update the context.
+        update_context_case1, update_context_case2 = boss_aid._check_update_context(message)
+        if (update_context_case1 or update_context_case2) and boss_aid.update_context:
+            boss_aid.problem = message if not hasattr(boss_aid, "problem") else boss_aid.problem
+            _, ret_msg = boss_aid._generate_retrieve_user_reply(message)
+        else:
+            ret_msg = boss_aid.generate_init_message(message, n_results=n_results)
+        return ret_msg if ret_msg else message
+    
+boss_aid.human_input_mode = "NEVER"
+llm_config_functions = {
+        "functions": [
+            {
+                "name": "retrieve_content",
+                "description": "retrieve content for code generation and question answering.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "description": "Refined message which keeps the original meaning and can be used to retrieve content for code generation and question answering.",
+                        }
+                    },
+                    "required": ["message"],
+                },
+            },
+        ],
+        "config_list": config_list,
+        "timeout": 60,
+        "cache_seed": 42,
+    }
+
+
+# update llm_config for assistant agents.
+planning_assistant.llm_config.update(llm_config_functions)
+
+for agent in [boss, planning_assistant]:
+    # register functions for all agents.
+    agent.register_function(
+        function_map={
+            "retrieve_content": retrieve_content,
+        }
+    )
 
 
 print("********printing agent tool********")
