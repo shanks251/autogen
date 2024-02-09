@@ -244,11 +244,13 @@ llm_config_functions = {
         "cache_seed": 42,
     }
 
+for agent in [currency_aid, planning_assistant]:
+    # register functions for all agents.
+    # update llm_config for assistant agents.
+    agent.llm_config.update(llm_config_functions)
 
-# update llm_config for assistant agents.
-planning_assistant.llm_config.update(llm_config_functions)
 
-for agent in [boss, planning_assistant]:
+for agent in [boss, currency_aid, planning_assistant]:
     # register functions for all agents.
     agent.register_function(
         function_map={
@@ -261,4 +263,4 @@ print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
 
 # Start the chat
-start_chat([boss, currency_aid, planning_assistant], PROBLEM, {"config_list": config_list})
+start_chat([boss, currency_aid], PROBLEM, {"config_list": config_list})
