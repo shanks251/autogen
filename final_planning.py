@@ -2,7 +2,7 @@ import os
 import chromadb
 import autogen
 from autogen import AssistantAgent
-from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
+from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent, RetrieveAssistantAgent
 from autogen.agentchat.contrib.agent_builder import AgentBuilder
 from typing import Literal
 from pydantic import BaseModel, Field
@@ -187,8 +187,8 @@ boss = autogen.UserProxyAgent(
     function_map={"currency_calculator": currency_calculator, "ask_planner": ask_planner}
 )
 
-boss_aid = RetrieveUserProxyAgent(
-    name="Boss_assistant",
+retrieve_assistant = RetrieveAssistantAgent(
+    name="retrieve_assistant",
     is_termination_msg=termination_msg,
     system_message="Assistant who has extra content retrieval power for solving difficult problems.",
     human_input_mode="NEVER",
@@ -210,57 +210,10 @@ boss_aid = RetrieveUserProxyAgent(
     code_execution_config=False,  # we don't want to execute code in this case.
 )
 
-def retrieve_content(message, n_results=3):
-        boss_aid.n_results = n_results  # Set the number of results to be retrieved.
-        # Check if we need to update the context.
-        update_context_case1, update_context_case2 = boss_aid._check_update_context(message)
-        if (update_context_case1 or update_context_case2) and boss_aid.update_context:
-            boss_aid.problem = message if not hasattr(boss_aid, "problem") else boss_aid.problem
-            _, ret_msg = boss_aid._generate_retrieve_user_reply(message)
-        else:
-            ret_msg = boss_aid.generate_init_message(message, n_results=n_results)
-        return ret_msg if ret_msg else message
-    
-boss_aid.human_input_mode = "NEVER"
-llm_config_functions = {
-        "functions": [
-            {
-                "name": "retrieve_content",
-                "description": "retrieve content for code generation and question answering.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "message": {
-                            "type": "string",
-                            "description": "Refined message which keeps the original meaning and can be used to retrieve content for code generation and question answering.",
-                        }
-                    },
-                    "required": ["message"],
-                },
-            },
-        ],
-        "config_list": config_list,
-        "timeout": 60,
-        "cache_seed": 42,
-    }
-
-for agent in [currency_aid]:
-    # register functions for all agents.
-    # update llm_config for assistant agents.
-    agent.llm_config.update(llm_config_functions)
-
-
-for agent in [boss, currency_aid]:
-    # register functions for all agents.
-    agent.register_function(
-        function_map={
-            "retrieve_content": retrieve_content,
-        }
-    )
 
 
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
 
 # Start the chat
-start_chat([boss, currency_aid], PROBLEM, {"config_list": config_list})
+start_chat([boss, currency_aid, retrieve_assistant], PROBLEM, {"config_list": config_list})
