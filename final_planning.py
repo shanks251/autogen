@@ -261,6 +261,7 @@ for agent in [boss, retriever]:
 
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
+print(f"{retriever.name}_tools_function: ,{retriever.llm_config['functions']}")
 
 # Start the chat
 start_chat([boss, currency_aid, retriever], PROBLEM, {"config_list": config_list})
