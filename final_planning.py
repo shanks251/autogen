@@ -210,7 +210,7 @@ boss_aid = RetrieveUserProxyAgent(
     code_execution_config=False,  # we don't want to execute code in this case.
 )
 
-def retrieve_content(message, n_results=3):
+def retrieve_content(message, n_results=1):
         boss_aid.n_results = n_results  # Set the number of results to be retrieved.
         # Check if we need to update the context.
         update_context_case1, update_context_case2 = boss_aid._check_update_context(message)
