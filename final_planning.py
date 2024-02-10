@@ -2,7 +2,8 @@ import os
 import chromadb
 import autogen
 from autogen import AssistantAgent
-from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent, RetrieveAssistantAgent
+from autogen.agentchat.contrib.retrieve_user_proxy_agent import RetrieveUserProxyAgent
+from autogen.agentchat.contrib.retrieve_assistant_agent import RetrieveAssistantAgent
 from autogen.agentchat.contrib.agent_builder import AgentBuilder
 from typing import Literal
 from pydantic import BaseModel, Field
