@@ -281,7 +281,7 @@ def call_rag_chat():
         message=PROBLEM,
     )
 
-print("rag_chat")    
-rag_chat()
-# print("call_rag_chat")
-# call_rag_chat()
+# print("rag_chat")    
+# rag_chat()
+print("call_rag_chat")
+call_rag_chat()
