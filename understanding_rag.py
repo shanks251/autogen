@@ -169,7 +169,7 @@ def call_rag_chat():
     # with RAG user proxy agent.
     # In order to use RAG user proxy agent, we need to wrap RAG agents in a function and call
     # it from other agents.
-    def retrieve_content(message, n_results=3):
+    def retrieve_content(message, n_results=1):
         boss_aid.n_results = n_results  # Set the number of results to be retrieved.
         # Check if we need to update the context.
         update_context_case1, update_context_case2 = boss_aid._check_update_context(message)
@@ -220,7 +220,7 @@ def call_rag_chat():
         agents=[boss, coder, pm, reviewer],
         messages=[],
         max_round=12,
-        speaker_selection_method="random",
+        speaker_selection_method="auto",
         allow_repeat_speaker=False,
     )
 
