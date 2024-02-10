@@ -244,13 +244,13 @@ llm_config_functions = {
         "cache_seed": 42,
     }
 
-for agent in [currency_aid, planning_assistant]:
+for agent in [currency_aid]:
     # register functions for all agents.
     # update llm_config for assistant agents.
     agent.llm_config.update(llm_config_functions)
 
 
-for agent in [boss, currency_aid, planning_assistant]:
+for agent in [boss, currency_aid]:
     # register functions for all agents.
     agent.register_function(
         function_map={
