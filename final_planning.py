@@ -54,7 +54,7 @@ writer = autogen.AssistantAgent(
 )
 
 coder = autogen.AssistantAgent(
-    name="chatbot",
+    name="coder",
     system_message="For coding tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
@@ -179,27 +179,27 @@ boss_aid = RetrieveUserProxyAgent(
         "collection_name": "groupchat",
         "get_or_create": True,
     },
-    code_execution_config={"work_dir": "coding"},  # we don't want to execute code in this case.
+    code_execution_config={"work_dir": "coding", "use_docker": False},  # we don't want to execute code in this case.
     function_map={"currency_calculator": currency_calculator}
 )
 
-@boss_aid.register_for_execution()
-@coder.register_for_llm(name="python", description="run cell in ipython and return the execution result.")
-def exec_python(cell: Annotated[str, "Valid Python cell to execute."]) -> str:
-    ipython = get_ipython()
-    result = ipython.run_cell(cell)
-    log = str(result.result)
-    if result.error_before_exec is not None:
-        log += f"\n{result.error_before_exec}"
-    if result.error_in_exec is not None:
-        log += f"\n{result.error_in_exec}"
-    return log
+# @boss_aid.register_for_execution()
+# @coder.register_for_llm(name="python", description="run cell in ipython and return the execution result.")
+# def exec_python(cell: Annotated[str, "Valid Python cell to execute."]) -> str:
+#     ipython = get_ipython()
+#     result = ipython.run_cell(cell)
+#     log = str(result.result)
+#     if result.error_before_exec is not None:
+#         log += f"\n{result.error_before_exec}"
+#     if result.error_in_exec is not None:
+#         log += f"\n{result.error_in_exec}"
+#     return log
 
 
-@boss_aid.register_for_execution()
-@coder.register_for_llm(name="sh", description="run a shell script and return the execution result.")
-def exec_sh(script: Annotated[str, "Valid Python cell to execute."]) -> str:
-    return boss_aid.execute_code_blocks([("sh", script)])
+# @boss_aid.register_for_execution()
+# @coder.register_for_llm(name="sh", description="run a shell script and return the execution result.")
+# def exec_sh(script: Annotated[str, "Valid Python cell to execute."]) -> str:
+#     return boss_aid.execute_code_blocks([("sh", script)])
 
 # def retrieve_content(message, n_results=1):
 #         boss_aid.n_results = n_results  # Set the number of results to be retrieved.
@@ -292,4 +292,4 @@ PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, deter
 
 
 # Start the chat
-start_chat([boss_aid, currency_aid, coder], PROBLEM, {"config_list": config_list})
+start_chat([boss_aid, currency_aid], PROBLEM, {"config_list": config_list})
