@@ -179,27 +179,28 @@ boss_aid = RetrieveUserProxyAgent(
         "collection_name": "groupchat",
         "get_or_create": True,
     },
-    code_execution_config={"work_dir": "coding", "use_docker": True},  # we do want to execute code in this case.
+    # code_execution_config={"work_dir": "coding", "use_docker": True},  # we do want to execute code in this case.
+    code_execution_config=False,
     function_map={"currency_calculator": currency_calculator}
 )
 
-# @boss_aid.register_for_execution()
-# @coder.register_for_llm(name="python", description="run cell in ipython and return the execution result.")
-# def exec_python(cell: Annotated[str, "Valid Python cell to execute."]) -> str:
-#     ipython = get_ipython()
-#     result = ipython.run_cell(cell)
-#     log = str(result.result)
-#     if result.error_before_exec is not None:
-#         log += f"\n{result.error_before_exec}"
-#     if result.error_in_exec is not None:
-#         log += f"\n{result.error_in_exec}"
-#     return log
+@boss_aid.register_for_execution()
+@coder.register_for_llm(name="python", description="run cell in ipython and return the execution result.")
+def exec_python(cell: Annotated[str, "Valid Python cell to execute."]) -> str:
+    ipython = get_ipython()
+    result = ipython.run_cell(cell)
+    log = str(result.result)
+    if result.error_before_exec is not None:
+        log += f"\n{result.error_before_exec}"
+    if result.error_in_exec is not None:
+        log += f"\n{result.error_in_exec}"
+    return log
 
 
-# @boss_aid.register_for_execution()
-# @coder.register_for_llm(name="sh", description="run a shell script and return the execution result.")
-# def exec_sh(script: Annotated[str, "Valid Python cell to execute."]) -> str:
-#     return boss_aid.execute_code_blocks([("sh", script)])
+@boss_aid.register_for_execution()
+@coder.register_for_llm(name="sh", description="run a shell script and return the execution result.")
+def exec_sh(script: Annotated[str, "Valid Python cell to execute."]) -> str:
+    return boss_aid.execute_code_blocks([("sh", script)])
 
 # def retrieve_content(message, n_results=1):
 #         boss_aid.n_results = n_results  # Set the number of results to be retrieved.
@@ -252,7 +253,7 @@ boss_aid = RetrieveUserProxyAgent(
 
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
-# print(f"{coder.name}_tools_function: ,{coder.llm_config['tools'][0]['function']}")
+print(f"{coder.name}_tools_function: ,{coder.llm_config['tools'][0]['function']}")
 
 # Reset agents
 def reset_agents(agents):
