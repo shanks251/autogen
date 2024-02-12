@@ -252,7 +252,7 @@ boss_aid = RetrieveUserProxyAgent(
 
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
-print(f"{coder.name}_tools_function: ,{coder.llm_config['tools'][0]['function']}")
+# print(f"{coder.name}_tools_function: ,{coder.llm_config['tools'][0]['function']}")
 
 # Reset agents
 def reset_agents(agents):
