@@ -172,7 +172,7 @@ boss_aid = RetrieveUserProxyAgent(
         "collection_name": "groupchat",
         "get_or_create": True,
     },
-    code_execution_config=False,  # we don't want to execute code in this case.
+    code_execution_config=True,  # we don't want to execute code in this case.
     function_map={"currency_calculator": currency_calculator}
 )
 
