@@ -172,7 +172,8 @@ boss_aid = RetrieveUserProxyAgent(
         "collection_name": "groupchat",
         "get_or_create": True,
     },
-    code_execution_config=True,  # we don't want to execute code in this case.
+    code_execution_config=False,  # we don't want to execute code in this case.
+    function_map={"currency_calculator": currency_calculator}
 )
 
 # def retrieve_content(message, n_results=1):
@@ -226,7 +227,7 @@ boss_aid = RetrieveUserProxyAgent(
 
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
-print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
+print(f"{boss_aid.name}_tools_function: ,{boss_aid.llm_config['functions']}")
 
 # Reset agents
 def reset_agents(agents):
