@@ -248,10 +248,17 @@ def start_chat(agents, problem, llm_config):
     # manager_llm_config.pop("functions")
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=manager_llm_config)
 
-    # Start chatting with the boss as this is the user proxy agent.
+    # # Start chatting with the boss as this is the user proxy agent.
+    # agents[0].initiate_chat(
+    #     manager,
+    #     message=problem,
+    # )
+    # Start chatting with boss_aid as this is the user proxy agent.
     agents[0].initiate_chat(
         manager,
-        message=problem,
+        problem=PROBLEM,
+        search_string="GDP",
+        n_results=1,
     )
 
 # Define the problem statement
