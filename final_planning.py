@@ -119,7 +119,7 @@ def currency_calculator(
     return f"{quote_amount} {quote_currency}"
 
 
-currency_aid = autogen.Agent(
+currency_aid = autogen.AssistantAgent(
     name="currency_assistant",
     system_message="Suggest currency of given countries and convert it. For currency conversion tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config={"timeout": 60, 
