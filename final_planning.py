@@ -7,6 +7,7 @@ from autogen.agentchat.contrib.agent_builder import AgentBuilder
 from typing import Literal
 from pydantic import BaseModel, Field
 from typing_extensions import Annotated
+from IPython import get_ipython
 
 
 config_file_or_env = "/content/drive/MyDrive/OAI_CONFIG_LIST"
@@ -50,6 +51,12 @@ writer = autogen.AssistantAgent(
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
     system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue for given movies description."
+)
+
+coder = autogen.AssistantAgent(
+    name="chatbot",
+    system_message="For coding tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
+    llm_config=llm_config,
 )
 
 planner = autogen.AssistantAgent(
@@ -172,9 +179,27 @@ boss_aid = RetrieveUserProxyAgent(
         "collection_name": "groupchat",
         "get_or_create": True,
     },
-    code_execution_config=True,  # we don't want to execute code in this case.
+    code_execution_config={"work_dir": "coding"},  # we don't want to execute code in this case.
     function_map={"currency_calculator": currency_calculator}
 )
+
+@boss_aid.register_for_execution()
+@coder.register_for_llm(name="python", description="run cell in ipython and return the execution result.")
+def exec_python(cell: Annotated[str, "Valid Python cell to execute."]) -> str:
+    ipython = get_ipython()
+    result = ipython.run_cell(cell)
+    log = str(result.result)
+    if result.error_before_exec is not None:
+        log += f"\n{result.error_before_exec}"
+    if result.error_in_exec is not None:
+        log += f"\n{result.error_in_exec}"
+    return log
+
+
+@boss_aid.register_for_execution()
+@coder.register_for_llm(name="sh", description="run a shell script and return the execution result.")
+def exec_sh(script: Annotated[str, "Valid Python cell to execute."]) -> str:
+    return boss_aid.execute_code_blocks([("sh", script)])
 
 # def retrieve_content(message, n_results=1):
 #         boss_aid.n_results = n_results  # Set the number of results to be retrieved.
