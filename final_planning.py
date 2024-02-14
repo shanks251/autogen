@@ -48,13 +48,15 @@ pm = autogen.AssistantAgent(
 
 writer = autogen.AssistantAgent(
     name="writer",
+    is_termination_msg=termination_msg,
     llm_config={"config_list": config_list},
     # the default system message of the AssistantAgent is overwritten here
-    system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue for given movies description."
+    system_message="You are a movie writer. Your responsible for crafting compelling narratives and dialogue for given movies description. Reply `TERMINATE` in the end when everything is done."
 )
 
 coder = autogen.AssistantAgent(
     name="coder",
+    is_termination_msg=termination_msg,
     system_message="For coding tasks, only use the functions you have been provided with. Reply TERMINATE when the task is done.",
     llm_config=llm_config,
 )
