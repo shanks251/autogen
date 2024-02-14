@@ -313,18 +313,18 @@ def start_chat(agents, problem, llm_config):
     # manager_llm_config.pop("functions")
     manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=manager_llm_config)
 
-    # # Start chatting with the boss as this is the user proxy agent.
-    # agents[0].initiate_chat(
-    #     manager,
-    #     message=problem,
-    # )
-    # Start chatting with boss_aid as this is the user proxy agent.
+    # Start chatting with the boss as this is the user proxy agent.
     agents[0].initiate_chat(
         manager,
-        problem=problem,
-        search_string="GDP",
-        n_results=1,
+        message=problem,
     )
+    # # Start chatting with boss_aid as this is the user proxy agent.
+    # agents[0].initiate_chat(
+    #     manager,
+    #     problem=problem,
+    #     search_string="GDP",
+    #     n_results=1,
+    # )
 
 # Define the problem statement
 PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
