@@ -207,6 +207,7 @@ def call_rag_chat():
     for agent in [coder, pm, reviewer]:
         # update llm_config for assistant agents.
         agent.llm_config.update(llm_config)
+        print(f"{agent.name}_tools_function: ,{agent.llm_config['functions']}")
 
     for agent in [boss, coder, pm, reviewer]:
         # register functions for all agents.
@@ -215,6 +216,9 @@ def call_rag_chat():
                 "retrieve_content": retrieve_content,
             }
         )
+        print(f"{agent.name}_function_map: ,{agent['function_map']}")
+        
+
 
     groupchat = autogen.GroupChat(
         agents=[boss, coder, pm, reviewer],
