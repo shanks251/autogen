@@ -153,6 +153,14 @@ reviewer = autogen.AssistantAgent(
     llm_config=llm_config,
 )
 
+retriever = autogen.AssistantAgent(
+    name="retriever",
+    is_termination_msg=termination_msg,
+    system_message="You are a assistant who has extra content retrieval power for solving difficult problems. For retriver tasks, only use the functions you have been provided with. Reply `TERMINATE` in the end when everything is done.",
+    llm_config=llm_config,
+)
+
+
 PROBLEM = "What are the GDP figures for the USA and Germany? Output final answer of each sub questions as one final answer."
 
 def _reset_agents():
@@ -161,6 +169,7 @@ def _reset_agents():
     coder.reset()
     pm.reset()
     reviewer.reset()
+    retriever.reset()
     
 def call_rag_chat():
     _reset_agents()
@@ -204,7 +213,7 @@ def call_rag_chat():
         "cache_seed": 42,
     }
 
-    for agent in [coder, pm, reviewer]:
+    for agent in [retriever]:
         # update llm_config for assistant agents.
         agent.llm_config.update(llm_config)
         print(f"{agent.name}_tools_function: ,{agent.llm_config['functions']}")
