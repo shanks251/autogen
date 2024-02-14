@@ -78,7 +78,7 @@ def ask_planner(message):
     # return the last message received from the planner
     return planner_user.last_message()["content"]
 
-planning_assistant = autogen.AssistantAgent(
+planning_aid = autogen.AssistantAgent(
     name="planning_assistant",
     llm_config={
         "temperature": 0,
@@ -217,7 +217,7 @@ boss = autogen.UserProxyAgent(
     system_message="The boss who ask questions and give tasks.",
     code_execution_config=False,  # we don't want to execute code in this case.
     default_auto_reply="Reply `TERMINATE` if the task is done.",
-    function_map={"retrieve_content": retrieve_content, "currency_calculator": currency_calculator}
+    function_map={"retrieve_content": retrieve_content, "currency_calculator": currency_calculator, "ask_planner":ask_planner}
 )
 
 # @boss_aid.register_for_execution()
@@ -290,6 +290,7 @@ boss = autogen.UserProxyAgent(
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
 print(f"{retriever_aid.name}_tools_function: ,{retriever_aid.llm_config['functions']}")
+print(f"{planning_aid.name}_tools_function: ,{planning_aid.llm_config['functions']}")
 # print(f"{coder.name}_tools_function: ,{coder.llm_config['tools'][0]['function']}")
 print(f"{boss.name}_function_map: ,{boss.function_map}")
 
@@ -331,4 +332,4 @@ PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, deter
 
 
 # Start the chat
-start_chat([boss, currency_aid, retriever_aid], PROBLEM, {"config_list": config_list})
+start_chat([boss, planning_aid, currency_aid, retriever_aid], PROBLEM, {"config_list": config_list})
