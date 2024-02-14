@@ -222,73 +222,6 @@ boss = autogen.UserProxyAgent(
     function_map={"retrieve_content": retrieve_content, "currency_calculator": currency_calculator, "ask_planner":ask_planner}
 )
 
-# @boss_aid.register_for_execution()
-# @coder.register_for_llm(name="python", description="run cell in ipython and return the execution result.")
-# def exec_python(cell: Annotated[str, "Valid Python cell to execute."]) -> str:
-#     ipython = get_ipython()
-#     result = ipython.run_cell(cell)
-#     log = str(result.result)
-#     if result.error_before_exec is not None:
-#         log += f"\n{result.error_before_exec}"
-#     if result.error_in_exec is not None:
-#         log += f"\n{result.error_in_exec}"
-#     return log
-
-
-# @boss_aid.register_for_execution()
-# @coder.register_for_llm(name="sh", description="run a shell script and return the execution result.")
-# def exec_sh(script: Annotated[str, "Valid Python cell to execute."]) -> str:
-#     return boss_aid.execute_code_blocks([("sh", script)])
-
-# def retrieve_content(message, n_results=1):
-#         boss_aid.n_results = n_results  # Set the number of results to be retrieved.
-#         # Check if we need to update the context.
-#         update_context_case1, update_context_case2 = boss_aid._check_update_context(message)
-#         if (update_context_case1 or update_context_case2) and boss_aid.update_context:
-#             boss_aid.problem = message if not hasattr(boss_aid, "problem") else boss_aid.problem
-#             _, ret_msg = boss_aid._generate_retrieve_user_reply(message)
-#         else:
-#             ret_msg = boss_aid.generate_init_message(message, n_results=n_results)
-#         return ret_msg if ret_msg else message
-    
-# boss_aid.human_input_mode = "NEVER"
-# llm_config_functions = {
-#         "functions": [
-#             {
-#                 "name": "retrieve_content",
-#                 "description": "retrieve content for code generation and question answering.",
-#                 "parameters": {
-#                     "type": "object",
-#                     "properties": {
-#                         "message": {
-#                             "type": "string",
-#                             "description": "Refined message which keeps the original meaning and can be used to retrieve content for code generation and question answering.",
-#                         }
-#                     },
-#                     "required": ["message"],
-#                 },
-#             },
-#         ],
-#         "config_list": config_list,
-#         "timeout": 60,
-#         "cache_seed": 42,
-#     }
-
-# for agent in [retriever]:
-#     # register functions for all agents.
-#     # update llm_config for assistant agents.
-#     agent.llm_config.update(llm_config_functions)
-
-
-# for agent in [boss, retriever]:
-#     # register functions for all agents.
-#     agent.register_function(
-#         function_map={
-#             "retrieve_content": retrieve_content,
-#         }
-#     )
-
-
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
 print(f"{retriever_aid.name}_tools_function: ,{retriever_aid.llm_config['functions']}")
@@ -321,13 +254,6 @@ def start_chat(agents, problem, llm_config):
         manager,
         message=problem,
     )
-    # # Start chatting with boss_aid as this is the user proxy agent.
-    # agents[0].initiate_chat(
-    #     manager,
-    #     problem=problem,
-    #     search_string="GDP",
-    #     n_results=1,
-    # )
 
 # Define the problem statement
 PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, determine which country has the higher GDP and output GDP in their respective national currencies. Output final answer of each sub questions as one final answer."
