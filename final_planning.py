@@ -149,22 +149,11 @@ currency_aid = autogen.AssistantAgent(
             },
     )
 
-boss = autogen.UserProxyAgent(
-    name="Boss",
-    is_termination_msg=termination_msg,
-    human_input_mode="NEVER",
-    system_message="The boss who ask questions and give tasks.",
-    code_execution_config=False,  # we don't want to execute code in this case.
-    default_auto_reply="Reply `TERMINATE` if the task is done.",
-    function_map={"currency_calculator": currency_calculator, "ask_planner": ask_planner}
-)
-
 boss_aid = RetrieveUserProxyAgent(
-    name="Boss_Assistant",
-    is_termination_msg=termination_msg,
+    name="ragproxyagent",
     system_message="Assistant who has extra content retrieval power for solving difficult problems.",
-    human_input_mode="NEVER",
-    max_consecutive_auto_reply=10,
+    human_input_mode="NEVER", # Disable human input for boss_aid since it only retrieves content.
+    max_consecutive_auto_reply=3,
     retrieve_config={
         "task": "code",
         "docs_path": [
@@ -172,35 +161,82 @@ boss_aid = RetrieveUserProxyAgent(
             "/content/drive/MyDrive/sample_doc/sample_2.pdf",
             "/content/drive/MyDrive/sample_doc/sample_3.pdf"
         ],
-        "chunk_token_size": 500,
-        "max_tokens":1000,
+        "custom_text_types": ["mdx"],
+        "chunk_token_size": 1000,
         "model": config_list[0]["model"],
         "client": chromadb.PersistentClient(path="/tmp/chromadb"),
-        "collection_name": "groupchat",
-        "get_or_create": True,
+        "embedding_model": "all-mpnet-base-v2",
+        "get_or_create": True,  # set to False if you don't want to reuse an existing collection, but you'll need to remove the collection manually
     },
-    # code_execution_config={"work_dir": "coding", "use_docker": True},  # we do want to execute code in this case.
-    code_execution_config=False,
-    function_map={"currency_calculator": currency_calculator}
+    code_execution_config=False, # set to False if you don't want to execute the code
 )
 
-@boss_aid.register_for_execution()
-@coder.register_for_llm(name="python", description="run cell in ipython and return the execution result.")
-def exec_python(cell: Annotated[str, "Valid Python cell to execute."]) -> str:
-    ipython = get_ipython()
-    result = ipython.run_cell(cell)
-    log = str(result.result)
-    if result.error_before_exec is not None:
-        log += f"\n{result.error_before_exec}"
-    if result.error_in_exec is not None:
-        log += f"\n{result.error_in_exec}"
-    return log
+def retrieve_content(message):
+    n_results = 1
+    boss_aid.n_results = n_results  # Set the number of results to be retrieved.
+    # Check if we need to update the context.
+    update_context_case1, update_context_case2 = boss_aid._check_update_context(message)
+    if (update_context_case1 or update_context_case2) and boss_aid.update_context:
+        boss_aid.problem = message if not hasattr(boss_aid, "problem") else boss_aid.problem
+        _, ret_msg = boss_aid._generate_retrieve_user_reply(message)
+    else:
+        ret_msg = boss_aid.generate_init_message(message, n_results=n_results)
+    return ret_msg if ret_msg else message
+
+retriever_aid = autogen.AssistantAgent(
+    name="retriever_assistant",
+    is_termination_msg=termination_msg,
+    system_message="You are a assistant who has extra content retrieval power for solving difficult problems. For retriver tasks, only use the functions you have been provided with. Reply `TERMINATE` in the end when everything is done.",
+    llm_config= {
+    "functions": [
+        {
+            "name": "retrieve_content",
+            "description": "retrieve content for code generation and question answering.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string",
+                        "description": "Refined message which keeps the original meaning and can be used to retrieve content for code generation and question answering.",
+                    }
+                },
+                "required": ["message"],
+            },
+        },
+    ],
+    "config_list": config_list,
+    "timeout": 60,
+    "cache_seed": 42,
+},
+)
+
+boss = autogen.UserProxyAgent(
+    name="Boss",
+    is_termination_msg=termination_msg,
+    human_input_mode="NEVER",
+    system_message="The boss who ask questions and give tasks.",
+    code_execution_config=False,  # we don't want to execute code in this case.
+    default_auto_reply="Reply `TERMINATE` if the task is done.",
+    function_map={"retrieve_content": retrieve_content, "currency_calculator": currency_calculator}
+)
+
+# @boss_aid.register_for_execution()
+# @coder.register_for_llm(name="python", description="run cell in ipython and return the execution result.")
+# def exec_python(cell: Annotated[str, "Valid Python cell to execute."]) -> str:
+#     ipython = get_ipython()
+#     result = ipython.run_cell(cell)
+#     log = str(result.result)
+#     if result.error_before_exec is not None:
+#         log += f"\n{result.error_before_exec}"
+#     if result.error_in_exec is not None:
+#         log += f"\n{result.error_in_exec}"
+#     return log
 
 
-@boss_aid.register_for_execution()
-@coder.register_for_llm(name="sh", description="run a shell script and return the execution result.")
-def exec_sh(script: Annotated[str, "Valid Python cell to execute."]) -> str:
-    return boss_aid.execute_code_blocks([("sh", script)])
+# @boss_aid.register_for_execution()
+# @coder.register_for_llm(name="sh", description="run a shell script and return the execution result.")
+# def exec_sh(script: Annotated[str, "Valid Python cell to execute."]) -> str:
+#     return boss_aid.execute_code_blocks([("sh", script)])
 
 # def retrieve_content(message, n_results=1):
 #         boss_aid.n_results = n_results  # Set the number of results to be retrieved.
@@ -253,7 +289,9 @@ def exec_sh(script: Annotated[str, "Valid Python cell to execute."]) -> str:
 
 print("********printing agent tool********")
 print(f"{currency_aid.name}_tools_function: ,{currency_aid.llm_config['functions']}")
-print(f"{coder.name}_tools_function: ,{coder.llm_config['tools'][0]['function']}")
+print(f"{retriever_aid.name}_tools_function: ,{retriever_aid.llm_config['functions']}")
+# print(f"{coder.name}_tools_function: ,{coder.llm_config['tools'][0]['function']}")
+print(f"{boss.name}_function_map: ,{boss.function_map}")
 
 # Reset agents
 def reset_agents(agents):
@@ -283,7 +321,7 @@ def start_chat(agents, problem, llm_config):
     # Start chatting with boss_aid as this is the user proxy agent.
     agents[0].initiate_chat(
         manager,
-        problem=PROBLEM,
+        problem=problem,
         search_string="GDP",
         n_results=1,
     )
@@ -293,4 +331,4 @@ PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, deter
 
 
 # Start the chat
-start_chat([boss_aid, currency_aid], PROBLEM, {"config_list": config_list})
+start_chat([boss, currency_aid, retriever_aid], PROBLEM, {"config_list": config_list})
