@@ -332,4 +332,4 @@ PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, deter
 
 
 # Start the chat
-start_chat([boss, planning_aid, retriever_aid, currency_aid], PROBLEM, {"config_list": config_list})
+start_chat([boss, planning_aid, retriever_aid, currency_aid, writer], PROBLEM, {"config_list": config_list})
