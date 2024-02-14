@@ -216,7 +216,7 @@ def call_rag_chat():
                 "retrieve_content": retrieve_content,
             }
         )
-        print(f"{agent.name}_function_map: ,{agent['function_map']}")
+        print(f"{agent.name}_function_map: ,{agent.function_map}")
         
 
 
