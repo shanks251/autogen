@@ -209,7 +209,7 @@ def call_rag_chat():
         agent.llm_config.update(llm_config)
         print(f"{agent.name}_tools_function: ,{agent.llm_config['functions']}")
 
-    for agent in [boss, coder, pm, reviewer]:
+    for agent in [boss]:
         # register functions for all agents.
         agent.register_function(
             function_map={
