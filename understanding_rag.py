@@ -148,7 +148,7 @@ retriever = autogen.AssistantAgent(
     name="retriever",
     is_termination_msg=termination_msg,
     system_message="You are a assistant who has extra content retrieval power for solving difficult problems. For retriver tasks, only use the functions you have been provided with. Reply `TERMINATE` in the end when everything is done.",
-    llm_config=llm_config = {
+    llm_config= {
     "functions": [
         {
             "name": "retrieve_content",
@@ -265,7 +265,7 @@ groupchat = autogen.GroupChat(
 )
 
 manager_llm_config = llm_config.copy()
-manager_llm_config.pop("functions")
+# manager_llm_config.pop("functions")
 manager = autogen.GroupChatManager(groupchat=groupchat, llm_config=manager_llm_config)
 
 # Start chatting with the boss as this is the user proxy agent.
