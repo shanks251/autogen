@@ -40,10 +40,10 @@ print("LLM models: ", [config_list[i]["model"] for i in range(len(config_list))]
 
 # Define agents
 pm = autogen.AssistantAgent(
-    name="prime_minister",
-    llm_config={"config_list": config_list},
-    # the default system message of the AssistantAgent is overwritten here
-    system_message="You are the Prime Miniter of a country. Your responsible for overseeing the overall direction and priorities of the policy."
+    name="Product_Manager",
+    is_termination_msg=termination_msg,
+    system_message="You are a product manager. Reply `TERMINATE` in the end when everything is done.",
+    llm_config=llm_config,
 )
 
 writer = autogen.AssistantAgent(
@@ -332,4 +332,4 @@ PROBLEM = "What are the GDP figures for the USA and Germany? Additionally, deter
 
 
 # Start the chat
-start_chat([boss, planning_aid, retriever_aid, currency_aid, writer], PROBLEM, {"config_list": config_list})
+start_chat([boss, planning_aid, retriever_aid, currency_aid, pm, coder, writer], PROBLEM, {"config_list": config_list})
