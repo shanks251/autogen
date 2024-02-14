@@ -102,15 +102,6 @@ def termination_msg(x):
     return isinstance(x, dict) and "TERMINATE" == str(x.get("content", ""))[-9:].upper()
 
 
-boss = autogen.UserProxyAgent(
-    name="Boss",
-    is_termination_msg=termination_msg,
-    human_input_mode="NEVER",
-    system_message="The boss who ask questions and give tasks.",
-    code_execution_config=False,  # we don't want to execute code in this case.
-    default_auto_reply="Reply `TERMINATE` if the task is done.",
-)
-
 boss_aid = RetrieveUserProxyAgent(
     name="ragproxyagent",
     human_input_mode="NEVER",
@@ -157,44 +148,7 @@ retriever = autogen.AssistantAgent(
     name="retriever",
     is_termination_msg=termination_msg,
     system_message="You are a assistant who has extra content retrieval power for solving difficult problems. For retriver tasks, only use the functions you have been provided with. Reply `TERMINATE` in the end when everything is done.",
-    llm_config=llm_config,
-)
-
-
-PROBLEM = "What are the GDP figures for the USA and Germany? Output final answer of each sub questions as one final answer."
-
-def _reset_agents():
-    boss.reset()
-    boss_aid.reset()
-    coder.reset()
-    pm.reset()
-    reviewer.reset()
-    retriever.reset()
-    
-
-_reset_agents()
-
-# In this case, we will have multiple user proxy agents and we don't initiate the chat
-# with RAG user proxy agent.
-# In order to use RAG user proxy agent, we need to wrap RAG agents in a function and call
-# it from other agents.
-@boss.register_for_execution()
-@retriever.register_for_llm(name="retrieve_content", description="retrieve content forquestion answering and return the execution result.")
-def retrieve_content(message):
-    n_results = 1
-    boss_aid.n_results = n_results  # Set the number of results to be retrieved.
-    # Check if we need to update the context.
-    update_context_case1, update_context_case2 = boss_aid._check_update_context(message)
-    if (update_context_case1 or update_context_case2) and boss_aid.update_context:
-        boss_aid.problem = message if not hasattr(boss_aid, "problem") else boss_aid.problem
-        _, ret_msg = boss_aid._generate_retrieve_user_reply(message)
-    else:
-        ret_msg = boss_aid.generate_init_message(message, n_results=n_results)
-    return ret_msg if ret_msg else message
-
-boss_aid.human_input_mode = "NEVER"  # Disable human input for boss_aid since it only retrieves content.
-
-llm_config = {
+    llm_config=llm_config = {
     "functions": [
         {
             "name": "retrieve_content",
@@ -214,7 +168,77 @@ llm_config = {
     "config_list": config_list,
     "timeout": 60,
     "cache_seed": 42,
-}
+},
+)
+
+
+PROBLEM = "What are the GDP figures for the USA and Germany? Output final answer of each sub questions as one final answer."
+
+# In this case, we will have multiple user proxy agents and we don't initiate the chat
+# with RAG user proxy agent.
+# In order to use RAG user proxy agent, we need to wrap RAG agents in a function and call
+# it from other agents.
+# @boss.register_for_execution()
+# @retriever.register_for_llm(name="retrieve_content", description="retrieve content forquestion answering and return the execution result.")
+def retrieve_content(message):
+    n_results = 1
+    boss_aid.n_results = n_results  # Set the number of results to be retrieved.
+    # Check if we need to update the context.
+    update_context_case1, update_context_case2 = boss_aid._check_update_context(message)
+    if (update_context_case1 or update_context_case2) and boss_aid.update_context:
+        boss_aid.problem = message if not hasattr(boss_aid, "problem") else boss_aid.problem
+        _, ret_msg = boss_aid._generate_retrieve_user_reply(message)
+    else:
+        ret_msg = boss_aid.generate_init_message(message, n_results=n_results)
+    return ret_msg if ret_msg else message
+
+boss_aid.human_input_mode = "NEVER"  # Disable human input for boss_aid since it only retrieves content.
+
+boss = autogen.UserProxyAgent(
+    name="Boss",
+    is_termination_msg=termination_msg,
+    human_input_mode="NEVER",
+    system_message="The boss who ask questions and give tasks.",
+    code_execution_config=False,  # we don't want to execute code in this case.
+    default_auto_reply="Reply `TERMINATE` if the task is done.",
+    function_map={"retrieve_content": retrieve_content}
+)
+
+def _reset_agents():
+    boss.reset()
+    boss_aid.reset()
+    coder.reset()
+    pm.reset()
+    reviewer.reset()
+    retriever.reset()
+    
+
+_reset_agents()
+
+print(f"{retriever.name}_function: ,{retriever.llm_config['functions']}")
+print(f"{boss.name}_function_map: ,{boss.function_map}")
+
+# llm_config = {
+#     "functions": [
+#         {
+#             "name": "retrieve_content",
+#             "description": "retrieve content for code generation and question answering.",
+#             "parameters": {
+#                 "type": "object",
+#                 "properties": {
+#                     "message": {
+#                         "type": "string",
+#                         "description": "Refined message which keeps the original meaning and can be used to retrieve content for code generation and question answering.",
+#                     }
+#                 },
+#                 "required": ["message"],
+#             },
+#         },
+#     ],
+#     "config_list": config_list,
+#     "timeout": 60,
+#     "cache_seed": 42,
+# }
 
 # for agent in [retriever]:
 #     # update llm_config for assistant agents.
