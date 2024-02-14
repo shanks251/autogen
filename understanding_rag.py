@@ -230,7 +230,7 @@ def call_rag_chat():
 
 
     groupchat = autogen.GroupChat(
-        agents=[boss, retriever, coder, pm, reviewer],
+        agents=[boss, retriever],
         messages=[],
         max_round=12,
         speaker_selection_method="auto",
